@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 函数速查手册</title>
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-mid: #378ADD;
+    --blue-bg: #E6F1FB;
+    --blue-bg-soft: #F2F8FD;
+    --page-bg: #F4F8FC;
+    --card-border: rgba(24, 95, 165, 0.14);
+    --text: #1F2937;
+    --text-2: #5B6B7C;
+    --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--page-bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ===== 顶部毛玻璃 ===== */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 16px 20px 12px;
+  }
+  .header-inner { max-width: 1100px; margin: 0 auto; }
+  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  h1 { font-size: 20px; font-weight: 600; color: var(--blue); letter-spacing: 0.5px; }
+  .subtitle { font-size: 13px; color: var(--text-2); }
+  .count-badge {
+    font-size: 12px; background: var(--blue-bg); color: var(--blue);
+    padding: 2px 10px; border-radius: 999px; font-weight: 500;
+  }
+
+  /* 搜索框 */
+  .search-wrap { position: relative; margin-bottom: 10px; }
+  .search-wrap svg {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--blue-mid); pointer-events: none;
+  }
+  #search {
+    width: 100%; padding: 11px 16px 11px 40px;
+    border: 1px solid var(--card-border); border-radius: 12px;
+    background: #fff; font-size: 14px; font-family: var(--sans); color: var(--text);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  #search:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.15); }
+  #search::placeholder { color: #9AA8B5; }
+
+  /* 分类 chips */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--card-border); background: #fff; color: var(--text-2);
+    cursor: pointer; user-select: none; transition: all .15s; font-family: var(--sans);
+  }
+  .chip:hover { border-color: var(--blue-mid); color: var(--blue); }
+  .chip.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 500; }
+  .chip .n { font-size: 11px; opacity: .75; margin-left: 3px; }
+
+  /* ===== 主体 ===== */
+  main { max-width: 1100px; margin: 0 auto; padding: 22px 20px 60px; }
+  .cat-section { margin-bottom: 34px; }
+  .cat-title {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    font-size: 16px; font-weight: 600; color: var(--blue);
+  }
+  .cat-title::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--blue-mid); }
+  .cat-title .hint { font-size: 12px; font-weight: 400; color: var(--text-2); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+  /* 函数卡片 */
+  .card {
+    background: #fff; border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 16px 12px; position: relative;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .fname { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--blue); }
+  .star {
+    background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
+    color: #C7D3DE; padding: 2px 4px; transition: color .15s, transform .15s;
+  }
+  .star:hover { color: var(--blue-mid); transform: scale(1.15); }
+  .star.faved { color: #F0A92E; }
+  .syntax {
+    font-family: var(--mono); font-size: 12.5px; background: var(--blue-bg-soft);
+    border: 1px solid rgba(24,95,165,.10); color: #0C447C;
+    padding: 7px 10px; border-radius: 8px; margin-bottom: 8px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+  }
+  .desc { font-size: 13.5px; color: var(--text); margin-bottom: 8px; }
+  .ex {
+    font-family: var(--mono); font-size: 12px; color: var(--text-2);
+    background: #F7F9FB; border-radius: 8px; padding: 6px 10px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+  }
+  .ex .lbl { font-family: var(--sans); font-size: 11px; color: #9AA8B5; margin-right: 6px; }
+  .copy-btn {
+    position: absolute; right: 12px; bottom: 10px;
+    font-size: 11px; color: var(--blue); background: var(--blue-bg);
+    border: none; border-radius: 6px; padding: 3px 9px; cursor: pointer;
+    opacity: 0; transition: opacity .15s; font-family: var(--sans);
+  }
+  .card:hover .copy-btn { opacity: 1; }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+
+  /* 空结果 */
+  .empty {
+    display: none; text-align: center; padding: 60px 20px; color: var(--text-2);
+  }
+  .empty .big { font-size: 40px; margin-bottom: 10px; }
+
+  /* 快捷键区 */
+  .shortcut-box {
+    background: linear-gradient(135deg, #EAF3FC 0%, #F4F9FE 100%);
+    border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 20px;
+  }
+  .shortcut-box h2 { font-size: 16px; font-weight: 600; color: var(--blue); margin-bottom: 12px; }
+  .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 20px; }
+  .sc-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); }
+  kbd {
+    font-family: var(--mono); font-size: 11.5px; background: #fff;
+    border: 1px solid var(--card-border); border-bottom-width: 2px;
+    border-radius: 6px; padding: 2px 7px; color: var(--blue); white-space: nowrap;
+  }
+
+  /* 资源链接区 */
+  .res-section { margin-top: 22px; }
+  .res-group-title {
+    font-size: 14px; font-weight: 600; color: var(--blue);
+    margin: 0 0 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .res-group-title .tag {
+    font-size: 11px; font-weight: 400; color: var(--text-2);
+    background: #fff; border: 1px solid var(--card-border);
+    padding: 1px 8px; border-radius: 999px;
+  }
+  .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .res-card {
+    display: block; text-decoration: none;
+    background: #fff; border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 12px 14px; transition: box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .res-card:hover { box-shadow: 0 6px 18px rgba(24,95,165,.10); transform: translateY(-1px); border-color: var(--blue-mid); }
+  .res-name { font-size: 13.5px; font-weight: 600; color: var(--blue); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+  .res-name .arrow { font-size: 12px; color: var(--blue-mid); margin-left: auto; }
+  .res-url { font-family: var(--mono); font-size: 11px; color: #8FA5B8; margin-bottom: 5px; }
+  .res-desc { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+  .res-card.hot { border-color: rgba(24,95,165,.35); background: var(--blue-bg-soft); }
+  .res-card.hot .res-name::before {
+    content: "荐"; font-size: 10px; font-weight: 500; color: #fff;
+    background: var(--blue); border-radius: 4px; padding: 1px 5px;
+  }
+
+  footer {
+    text-align: center; font-size: 12px; color: var(--text-2);
+    padding: 24px 20px 40px; line-height: 2;
+  }
+  footer b { color: var(--blue); font-weight: 500; }
+
+  footer a { color: var(--blue); text-decoration: none; border-bottom: 1px dashed var(--blue-mid); }
+
+  @media (max-width: 640px) {
+    header { padding: 12px 14px 10px; }
+    main { padding: 16px 14px 50px; }
+    h1 { font-size: 18px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="title-row">
+      <h1>Excel 函数速查手册</h1>
+      <span class="count-badge" id="totalBadge"></span>
+      <span class="subtitle">搜一下，马上用</span>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="搜索函数名 / 用途，如：查找、求和、工龄、去重…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div class="empty" id="empty">
+  <div class="big">⌕</div>
+  <div>没搜到相关函数，换个关键词试试？</div>
+  <div style="font-size:12px;margin-top:6px;">比如搜「查找」「条件」「日期」「文本」这类场景词</div>
+</div>
+
+<main style="padding-top:0;">
+  <div class="shortcut-box">
+    <h2>顺手记住这 8 个快捷键，效率翻倍</h2>
+    <div class="sc-grid">
+      <div class="sc-item"><kbd>Ctrl + T</kbd>一键转成超级表</div>
+      <div class="sc-item"><kbd>Ctrl + Shift + L</kbd>开关筛选</div>
+      <div class="sc-item"><kbd>Alt + =</kbd>自动求和</div>
+      <div class="sc-item"><kbd>F4</kbd>锁定引用 A1 → $A$1</div>
+      <div class="sc-item"><kbd>Ctrl + ;</kbd>输入当天日期</div>
+      <div class="sc-item"><kbd>Ctrl + E</kbd>智能填充（拆分/合并）</div>
+      <div class="sc-item"><kbd>Ctrl + 方向键</kbd>跳到数据边缘</div>
+      <div class="sc-item"><kbd>Shift + 空格</kbd>选中整行</div>
+    </div>
+  </div>
+
+  <div class="res-section">
+    <p class="res-group-title">浏览器里直接做题，即时判对错<span class="tag">免费 · 免注册 · 界面为英文，练的都是通用公式</span></p>
+    <div class="res-grid">
+      <a class="res-card hot" href="https://logicexcel.com" target="_blank" rel="noopener">
+        <div class="res-name">LogicExcel<span class="arrow">→</span></div>
+        <div class="res-url">logicexcel.com</div>
+        <div class="res-desc">像背单词一样闯关：95 节课拆成 14 个专题，一次只练一个函数，答错给原因讲解，还有每日打卡</div>
+      </a>
+      <a class="res-card hot" href="https://spreadsheetcenter.com" target="_blank" rel="noopener">
+        <div class="res-name">Spreadsheet Center<span class="arrow">→</span></div>
+        <div class="res-url">spreadsheetcenter.com</div>
+        <div class="res-desc">150+ 道练习，在和 Excel 几乎一样的表格里亲手写公式，写完立刻判对错，题目偏职场实战</div>
+      </a>
+      <a class="res-card" href="https://excel-practice-online.com" target="_blank" rel="noopener">
+        <div class="res-name">Excel Practice Online<span class="arrow">→</span></div>
+        <div class="res-url">excel-practice-online.com</div>
+        <div class="res-desc">老牌练习站：每个函数先教程后做题，手机浏览器也能练，附自测题摸清自己水平</div>
+      </a>
+      <a class="res-card" href="https://www.excel-exercise.com" target="_blank" rel="noopener">
+        <div class="res-name">Excel Exercise<span class="arrow">→</span></div>
+        <div class="res-url">excel-exercise.com</div>
+        <div class="res-desc">按步骤完成一道实战题（如算一周营收），每步即时判错，还有分级测试考完马上出分</div>
+      </a>
+    </div>
+
+    <p class="res-group-title">中文资源站，查资料、看教程用<span class="tag">全部免费</span></p>
+    <div class="res-grid">
+      <a class="res-card hot" href="https://www.lanrenexcel.com" target="_blank" rel="noopener">
+        <div class="res-name">懒人Excel<span class="arrow">→</span></div>
+        <div class="res-url">lanrenexcel.com</div>
+        <div class="res-desc">无注册无弹窗，从基础操作到函数、透视表、VBA 全是图文教程，不会的直接搜</div>
+      </a>
+      <a class="res-card" href="https://xue.wps.cn" target="_blank" rel="noopener">
+        <div class="res-name">WPS学堂<span class="arrow">→</span></div>
+        <div class="res-url">xue.wps.cn</div>
+        <div class="res-desc">WPS 官方免费短视频课，一节 5-10 分钟配练习题，用 WPS 办公的话内容完全对口</div>
+      </a>
+      <a class="res-card" href="https://www.excelhome.net" target="_blank" rel="noopener">
+        <div class="res-name">ExcelHome<span class="arrow">→</span></div>
+        <div class="res-url">excelhome.net</div>
+        <div class="res-desc">国内最大 Excel 社区：函数案例、模板下载、论坛答疑，卡壳了发帖有人帮你改公式</div>
+      </a>
+      <a class="res-card" href="https://www.51zxw.net" target="_blank" rel="noopener">
+        <div class="res-name">我要自学网<span class="arrow">→</span></div>
+        <div class="res-url">51zxw.net</div>
+        <div class="res-desc">老牌视频课，手把手慢节奏，初级课程免费，适合完全零基础从头跟</div>
+      </a>
+      <a class="res-card" href="https://learn.microsoft.com/zh-cn/training/browse/?terms=excel" target="_blank" rel="noopener">
+        <div class="res-name">微软官方 Learn<span class="arrow">→</span></div>
+        <div class="res-url">learn.microsoft.com</div>
+        <div class="res-desc">微软官方免费教程，有网页互动练习沙盒，内容最权威，适合确认功能正确用法</div>
+      </a>
+      <a class="res-card" href="https://search.bilibili.com/all?keyword=%E7%8E%8B%E4%BD%A9%E4%B8%B0Excel" target="_blank" rel="noopener">
+        <div class="res-name">B站视频课<span class="arrow">→</span></div>
+        <div class="res-url">bilibili.com</div>
+        <div class="res-desc">系统打底看王佩丰 24 讲，做看板看戴师兄，往数据分析深走看孙兴华</div>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div><b>使用方法：</b>拿真实工作数据练手，遇到场景先来这里搜</div>
+  <div>系统打底推荐 B 站 <b>王佩丰《Excel 基础教程 24 讲》</b> · 深入数据分析看 <b>孙兴华</b> · 做报表看板看 <b>戴师兄</b></div>
+  <div>配套手册：<a href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">SQL 速查手册</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query 速查手册</a></div>
+</footer>
+
+<script>
+const CATS = [
+  { id: "lookup", name: "查找匹配", hint: "跨表对数、按编码查信息" },
+  { id: "stat",   name: "条件统计", hint: "按条件求和、计数、判断" },
+  { id: "text",   name: "文本处理", hint: "拆分拼接、清洗脏数据" },
+  { id: "date",   name: "日期计算", hint: "工龄、到期日、工作日" },
+  { id: "math",   name: "汇总数学", hint: "排名、取整、基础汇总" },
+  { id: "array",  name: "动态数组", hint: "新版函数，一个顶一串（Office 365 / Excel 2021+）" }
+];
+
+const FNS = [
+  // ===== 查找匹配 =====
+  { cat:"lookup", name:"XLOOKUP", syntax:'=XLOOKUP(查找值, 查找区域, 返回区域, [找不到显示])',
+    desc:"新版查找王。想查哪列查哪列，不用数第几列，左右都能查。",
+    ex:'=XLOOKUP("XM001", A:A, C:C, "查无此项")' },
+  { cat:"lookup", name:"VLOOKUP", syntax:'=VLOOKUP(查找值, 表格区域, 返回第几列, FALSE)',
+    desc:"老版查找，只能往右找。最后一个参数一定写 FALSE（精确匹配），不然结果会错得离谱。",
+    ex:'=VLOOKUP("XM001", A:D, 3, FALSE)' },
+  { cat:"lookup", name:"INDEX+MATCH", syntax:'=INDEX(返回区域, MATCH(查找值, 查找区域, 0))',
+    desc:"MATCH 找位置，INDEX 按位置取值。组合起来比 VLOOKUP 灵活，老版本 Excel 的万能查法。",
+    ex:'=INDEX(C:C, MATCH("XM001", A:A, 0))' },
+  { cat:"lookup", name:"MATCH", syntax:'=MATCH(查找值, 查找区域, 0)',
+    desc:"不返回值，只告诉你目标在第几行/第几列。常和 INDEX 搭配。",
+    ex:'=MATCH("XM001", A:A, 0) → 返回 5' },
+  { cat:"lookup", name:"XMATCH", syntax:'=XMATCH(查找值, 查找区域, [匹配模式], [搜索模式])',
+    desc:"MATCH 的新版，支持从后往前找、近似匹配，Office 365 可用。",
+    ex:'=XMATCH("XM001", A:A, 0, -1)  从后往前找' },
+  { cat:"lookup", name:"FILTER", syntax:'=FILTER(数据区域, 条件)',
+    desc:"按条件把一批记录筛出来，原表不动。结果会随数据变化自动更新。",
+    ex:'=FILTER(A2:D100, B2:B100="已完工")' },
+
+  // ===== 条件统计 =====
+  { cat:"stat", name:"SUMIF", syntax:'=SUMIF(条件区域, 条件, [求和区域])',
+    desc:"单条件求和。比如「只统计某乡镇的资金总额」。",
+    ex:'=SUMIF(B:B, "青山镇", C:C)' },
+  { cat:"stat", name:"SUMIFS", syntax:'=SUMIFS(求和区域, 条件区域1, 条件1, ...)',
+    desc:"多条件求和。注意：求和区域放最前面，和 SUMIF 顺序正好相反，别搞混。",
+    ex:'=SUMIFS(D:D, B:B, "青山镇", C:C, "产业类")' },
+  { cat:"stat", name:"COUNTIF", syntax:'=COUNTIF(条件区域, 条件)',
+    desc:"单条件计数。比如「状态为已完工的项目有几个」。",
+    ex:'=COUNTIF(C:C, "已完工")' },
+  { cat:"stat", name:"COUNTIFS", syntax:'=COUNTIFS(条件区域1, 条件1, ...)',
+    desc:"多条件计数，条件可以一直加。",
+    ex:'=COUNTIFS(B:B, "青山镇", C:C, "已完工")' },
+  { cat:"stat", name:"AVERAGEIFS", syntax:'=AVERAGEIFS(求平均区域, 条件区域1, 条件1, ...)',
+    desc:"多条件求平均值，比如某类项目的平均资金额。",
+    ex:'=AVERAGEIFS(D:D, C:C, "产业类")' },
+  { cat:"stat", name:"AND / OR / NOT", syntax:'=AND(条件1, 条件2, ...)  =OR(条件1, 条件2, ...)',
+    desc:"多条件组合判断，本身只返回 TRUE/FALSE，几乎不单独用——都是塞进 IF 里当条件。AND 要全部满足才算数，OR 满足一个就行。",
+    ex:'=IF(AND(B2>=60, C2>=60), "通过", "补考")' },
+  { cat:"stat", name:"IF", syntax:'=IF(条件, 满足时返回, 不满足时返回)',
+    desc:"最基础的判断：非此即彼。嵌套太多层时用 IFS 替代。",
+    ex:'=IF(B2>=90, "优秀", "待改进")' },
+  { cat:"stat", name:"IFS", syntax:'=IFS(条件1, 结果1, 条件2, 结果2, ...)',
+    desc:"多分支判断，不用一层层嵌套 IF，清爽好读。",
+    ex:'=IFS(B2>=90,"优秀", B2>=60,"合格", TRUE,"不合格")' },
+  { cat:"stat", name:"IFERROR", syntax:'=IFERROR(公式, 出错时显示)',
+    desc:"公式报错不再显示 #N/A，显示你指定的内容，报表瞬间干净。",
+    ex:'=IFERROR(VLOOKUP(A2,D:E,2,0), "未匹配")' },
+  { cat:"stat", name:"COUNTA", syntax:'=COUNTA(区域)',
+    desc:"数非空单元格个数。快速确认「这一列实际填了多少条」。",
+    ex:'=COUNTA(A2:A500)' },
+
+  // ===== 文本处理 =====
+  { cat:"text", name:"TEXT", syntax:'=TEXT(值, "格式代码")',
+    desc:"把数字/日期变成指定格式的文本。金额两位小数、日期变「2026年9月」都靠它。",
+    ex:'=TEXT(A1, "yyyy年m月d日")' },
+  { cat:"text", name:"LEFT / RIGHT / MID", syntax:'=LEFT(文本, 位数)  =MID(文本, 起始位, 位数)',
+    desc:"从左边、右边、中间截取字符串。拆身份证号、编码分段必备。",
+    ex:'=MID(A2, 7, 8)  取身份证里的出生日期' },
+  { cat:"text", name:"CONCAT / &", syntax:'=CONCAT(文本1, 文本2, ...)  或  =文本1 & 文本2',
+    desc:"最基础的拼接：把几段文本连成一段。日常用 & 符号更顺手，任何版本都能用。注意：TEXTJOIN 是拼一整个区域，CONCAT/& 是拼指定的几段。",
+    ex:'=A2 & "-" & B2  拼成 青山镇-饮水工程' },
+  { cat:"text", name:"TEXTSPLIT", syntax:'=TEXTSPLIT(文本, 列分隔符, [行分隔符])',
+    desc:"一个公式把「姓名-部门-金额」拆成多列，Office 365 专属，告别手动分列。",
+    ex:'=TEXTSPLIT(A2, "-")' },
+  { cat:"text", name:"TEXTJOIN", syntax:'=TEXTJOIN("分隔符", 是否忽略空, 区域)',
+    desc:"把一整个区域拼成一句话，自动跳过空格。比 & 一个个连优雅得多。",
+    ex:'=TEXTJOIN("、", TRUE, A2:A10)' },
+  { cat:"text", name:"TRIM", syntax:'=TRIM(文本)',
+    desc:"去掉首尾多余空格。VLOOKUP 死活查不到？八成是数据里藏着空格，先 TRIM 一下。",
+    ex:'=TRIM(A2)' },
+  { cat:"text", name:"REPLACE", syntax:'=REPLACE(原文本, 起始位, 替换几个字, "新内容")',
+    desc:"按「位置」替换：从第几个字开始、换掉几个字。和 SUBSTITUTE 的区别：SUBSTITUTE 按内容找着换，REPLACE 按位置换。给手机号中间四位打码就用它。",
+    ex:'=REPLACE(A2, 4, 4, "****")  手机号变成 138****5678' },
+  { cat:"text", name:"SUBSTITUTE", syntax:'=SUBSTITUTE(文本, "旧内容", "新内容")',
+    desc:"替换指定内容，比如批量把「镇」改成「乡」，或删掉文本里的某个符号。",
+    ex:'=SUBSTITUTE(A2, " ", "")' },
+  { cat:"text", name:"LEN", syntax:'=LEN(文本)',
+    desc:"数字符个数。检查身份证号是不是 18 位、编码位数对不对，一眼发现脏数据。",
+    ex:'=LEN(A2)' },
+  { cat:"text", name:"FIND / SEARCH", syntax:'=FIND("要找的字", 文本)',
+    desc:"返回某个字在文本里的位置，常配合 MID 截取。FIND 区分大小写，SEARCH 不区分。",
+    ex:'=FIND("-", A2)' },
+  { cat:"text", name:"REPT", syntax:'=REPT(字符, 次数)',
+    desc:"重复字符 n 次。配合数值能画出单元格内的迷你进度条。",
+    ex:'=REPT("█", B2/10)  简易进度条' },
+
+  // ===== 日期计算 =====
+  { cat:"date", name:"TODAY / NOW", syntax:'=TODAY()  =NOW()',
+    desc:"返回今天日期 / 现在时间，打开表格自动更新。做「距截止还有几天」必备。",
+    ex:'=A2 - TODAY()  还剩多少天' },
+  { cat:"date", name:"YEAR / MONTH / DAY", syntax:'=YEAR(日期)  =MONTH(日期)',
+    desc:"从日期里拆出年、月、日，按月汇总时先拆一列「月份」。",
+    ex:'=MONTH(A2)' },
+  { cat:"date", name:"DATE", syntax:'=DATE(年, 月, 日)',
+    desc:"把分开的年月日拼成日期，会自动进位（DATE(2026,13,1) 自动算成 2027 年 1 月）。",
+    ex:'=DATE(2026, 9, 1)' },
+  { cat:"date", name:"DATEDIF", syntax:'=DATEDIF(开始日期, 结束日期, "Y"/"M"/"D")',
+    desc:"算两个日期之间隔了多少年/月/天。工龄、年龄神器。注意：函数列表里搜不到它，但直接敲能用。",
+    ex:'=DATEDIF(A2, TODAY(), "Y")  工龄几年' },
+  { cat:"date", name:"EDATE", syntax:'=EDATE(开始日期, 月数)',
+    desc:"n 个月之后的同一天。合同 6 个月后到期是哪天？一键出。",
+    ex:'=EDATE(A2, 6)' },
+  { cat:"date", name:"EOMONTH", syntax:'=EOMONTH(日期, 偏移月数)',
+    desc:"返回月末最后一天。做月报时自动生成「本月最后一天」。",
+    ex:'=EOMONTH(TODAY(), 0)  本月最后一天' },
+  { cat:"date", name:"WORKDAY", syntax:'=WORKDAY(开始日期, 天数, [节假日区域])',
+    desc:"n 个工作日之后是哪天，自动跳过周末，还能排除法定节假日。",
+    ex:'=WORKDAY(A2, 10, 节假日表!A:A)' },
+  { cat:"date", name:"NETWORKDAYS", syntax:'=NETWORKDAYS(开始日期, 结束日期, [节假日])',
+    desc:"两个日期之间有几个工作日，算项目实际耗时用。",
+    ex:'=NETWORKDAYS(A2, B2)' },
+  { cat:"date", name:"WEEKDAY", syntax:'=WEEKDAY(日期, 2)',
+    desc:"返回星期几。参数写 2，周一是 1、周日是 7，符合国内习惯。",
+    ex:'=WEEKDAY(A2, 2)' },
+
+  // ===== 汇总数学 =====
+  { cat:"math", name:"SUM / AVERAGE / MAX / MIN", syntax:'=SUM(区域)',
+    desc:"求和、平均、最大、最小。基本功，配合 Alt+= 一键求和更快。",
+    ex:'=SUM(C2:C100)' },
+  { cat:"math", name:"ROUND 系列", syntax:'=ROUND(值, 位数)  =ROUNDUP(值, 位数)  =ROUNDDOWN(值, 位数)',
+    desc:"四舍五入 / 只入不舍 / 只舍不入。金额对不上时，先检查是不是没统一取舍规则。",
+    ex:'=ROUND(A2, 2)' },
+  { cat:"math", name:"INT", syntax:'=INT(值)',
+    desc:"直接砍掉小数部分，只留整数。",
+    ex:'=INT(A2)' },
+  { cat:"math", name:"RANK", syntax:'=RANK(值, 区域)',
+    desc:"排名。某项目资金额在全市排第几，一个公式搞定。",
+    ex:'=RANK(B2, B:B)' },
+  { cat:"math", name:"LARGE / SMALL", syntax:'=LARGE(区域, 第几大)',
+    desc:"取第 n 大 / 第 n 小的值，比如「资金额前 3 的项目是多少」。",
+    ex:'=LARGE(C:C, 3)' },
+  { cat:"math", name:"SUBTOTAL", syntax:'=SUBTOTAL(9, 区域)',
+    desc:"只对筛选后可见的行汇总（9 代表求和）。筛选状态下想看小计，必须用它而不是 SUM。",
+    ex:'=SUBTOTAL(9, C2:C100)' },
+  { cat:"math", name:"MOD", syntax:'=MOD(被除数, 除数)',
+    desc:"取余数。隔行填色、每 n 行分一组这类花活的底层工具。",
+    ex:'=MOD(ROW(), 2)' },
+
+  // ===== 动态数组 =====
+  { cat:"array", name:"UNIQUE", syntax:'=UNIQUE(区域)',
+    desc:"提取不重复的值，结果自动更新。下拉选项、去重名单一步到位。",
+    ex:'=UNIQUE(B2:B500)' },
+  { cat:"array", name:"SORT", syntax:'=SORT(区域, [按第几列], [升降序])',
+    desc:"对区域排序并输出新表，原表不动。",
+    ex:'=SORT(A2:D100, 4, -1)  按第4列降序' },
+  { cat:"array", name:"SEQUENCE", syntax:'=SEQUENCE(行数, [列数], [起始], [步长])',
+    desc:"自动生成序号序列，做模板时不用手拖。",
+    ex:'=SEQUENCE(100)' },
+  { cat:"array", name:"VSTACK", syntax:'=VSTACK(区域1, 区域2, ...)',
+    desc:"把多个结构相同的表纵向拼成一张大表，再配合 UNIQUE 去重名单。",
+    ex:'=UNIQUE(VSTACK(表1!A:A, 表2!A:A))' }
+];
+
+// ===== 渲染 =====
+const main = document.getElementById("main");
+const chipsEl = document.getElementById("chips");
+const emptyEl = document.getElementById("empty");
+const totalBadge = document.getElementById("totalBadge");
+const FAV_KEY = "excel-handbook-favs";
+let favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+let activeChip = "all";
+let keyword = "";
+
+function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function buildChips() {
+  const all = [{ id:"all", name:"全部" }, ...CATS, { id:"fav", name:"★ 已收藏" }];
+  chipsEl.innerHTML = all.map(c => {
+    const n = c.id === "all" ? FNS.length
+      : c.id === "fav" ? favs.size
+      : FNS.filter(f => f.cat === c.id).length;
+    return `<button class="chip${activeChip===c.id?" active":""}" data-id="${c.id}">${c.name}<span class="n">${n}</span></button>`;
+  }).join("");
+}
+
+function match(f) {
+  if (activeChip === "fav" && !favs.has(f.name)) return false;
+  if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
+  if (keyword) {
+    const hay = (f.name + " " + f.syntax + " " + f.desc + " " + f.ex).toLowerCase();
+    if (!hay.includes(keyword)) return false;
+  }
+  return true;
+}
+
+function render() {
+  buildChips();
+  totalBadge.textContent = "共 " + FNS.length + " 个函数";
+  let html = "";
+  CATS.forEach(c => {
+    const list = FNS.filter(f => f.cat === c.id && match(f));
+    if (!list.length) return;
+    html += `<section class="cat-section">
+      <div class="cat-title">${c.name}<span class="hint">${c.hint}</span></div>
+      <div class="grid">${list.map(cardHTML).join("")}</div>
+    </section>`;
+  });
+  main.innerHTML = html;
+  emptyEl.style.display = html ? "none" : "block";
+}
+
+function cardHTML(f) {
+  const faved = favs.has(f.name);
+  return `<div class="card" data-name="${esc(f.name)}">
+    <div class="card-head">
+      <span class="fname">${esc(f.name)}</span>
+      <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
+    </div>
+    <div class="syntax">${esc(f.syntax)}</div>
+    <div class="desc">${esc(f.desc)}</div>
+    <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>
+    <button class="copy-btn">复制语法</button>
+  </div>`;
+}
+
+// ===== 交互 =====
+chipsEl.addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  activeChip = chip.dataset.id;
+  render();
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  keyword = e.target.value.trim().toLowerCase();
+  render();
+});
+
+main.addEventListener("click", e => {
+  const star = e.target.closest(".star");
+  const copyBtn = e.target.closest(".copy-btn");
+  if (star) {
+    const name = star.closest(".card").dataset.name;
+    favs.has(name) ? favs.delete(name) : favs.add(name);
+    saveFavs();
+    render();
+    return;
+  }
+  if (copyBtn) {
+    const syntax = copyBtn.closest(".card").querySelector(".syntax").textContent;
+    navigator.clipboard.writeText(syntax).then(() => {
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制语法", 1200);
+    }).catch(() => {
+      const ta = document.createElement("textarea");
+      ta.value = syntax; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制语法", 1200);
+    });
+  }
+});
+
+render();
+</script>
+</body>
+</html>

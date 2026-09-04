@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据分析速查手册</title>
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-mid: #378ADD;
+    --blue-bg: #E6F1FB;
+    --blue-bg-soft: #F2F8FD;
+    --page-bg: #F4F8FC;
+    --card-border: rgba(24, 95, 165, 0.14);
+    --text: #1F2937;
+    --text-2: #5B6B7C;
+    --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--sans);
+    background: var(--page-bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  header {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 28px 20px 24px;
+    text-align: center;
+  }
+  h1 { font-size: 22px; font-weight: 600; color: var(--blue); letter-spacing: 1px; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: var(--text-2); }
+
+  main {
+    flex: 1; width: 100%; max-width: 720px; margin: 0 auto;
+    padding: 28px 20px 40px;
+  }
+  .book {
+    display: block; text-decoration: none;
+    background: #fff; border: 1px solid var(--card-border); border-radius: 16px;
+    padding: 20px 22px; margin-bottom: 16px;
+    transition: box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .book:hover { box-shadow: 0 8px 24px rgba(24,95,165,.12); transform: translateY(-2px); border-color: var(--blue-mid); }
+  .book-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .book-name { font-size: 17px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+  .book-icon {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--blue-bg);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue);
+  }
+  .open-tag {
+    font-size: 12px; color: var(--blue); background: var(--blue-bg);
+    padding: 3px 10px; border-radius: 999px; flex: 0 0 auto;
+  }
+  .book-desc { font-size: 13px; color: var(--text-2); line-height: 1.7; margin-bottom: 10px; }
+  .book-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-size: 11px; color: var(--text-2);
+    border: 1px solid var(--card-border); border-radius: 999px; padding: 2px 9px;
+    background: var(--blue-bg-soft);
+  }
+
+  .tip {
+    margin-top: 8px; background: linear-gradient(135deg, #EAF3FC 0%, #F4F9FE 100%);
+    border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 18px; font-size: 12.5px; color: var(--text); line-height: 1.8;
+  }
+  .tip b { color: var(--blue); font-weight: 500; }
+
+  footer {
+    text-align: center; font-size: 12px; color: var(--text-2);
+    padding: 18px 20px 28px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>数据分析速查手册</h1>
+  <div class="subtitle">Excel 函数 + SQL 语句 + Power Query · 随用随查 · 持续更新</div>
+</header>
+
+<main>
+  <a class="book" href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
+    <div class="book-top">
+      <span class="book-name"><span class="book-icon">fx</span>Excel 函数速查手册</span>
+      <span class="open-tag">打开 →</span>
+    </div>
+    <div class="book-desc">39 个高频函数按 6 大场景分类，每个配语法、一句人话解释和真实示例。带搜索、收藏、一键复制语法，附 8 个必背快捷键和在线练习网站入口。</div>
+    <div class="book-meta">
+      <span class="pill">查找匹配</span><span class="pill">条件统计</span><span class="pill">文本处理</span>
+      <span class="pill">日期计算</span><span class="pill">汇总数学</span><span class="pill">动态数组</span>
+    </div>
+  </a>
+
+  <a class="book" href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
+    <div class="book-top">
+      <span class="book-name"><span class="book-icon">&gt;_</span>SQL 速查手册</span>
+      <span class="open-tag">打开 →</span>
+    </div>
+    <div class="book-desc">44 条语句按 8 大场景分类，面向 Oracle 并标注 MySQL 方言差异，附学习顺序和刷题入口。每个配语法、人话解释和示例，支持搜索、收藏、复制语法。</div>
+    <div class="book-meta">
+      <span class="pill">查询基础</span><span class="pill">条件筛选</span><span class="pill">聚合统计</span>
+      <span class="pill">多表连接</span><span class="pill">子查询</span><span class="pill">窗口函数</span><span class="pill">增删改</span>
+    </div>
+  </a>
+
+  <a class="book" href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
+    <div class="book-top">
+      <span class="book-name"><span class="book-icon">PQ</span>Power Query 速查手册</span>
+      <span class="open-tag">打开 →</span>
+    </div>
+    <div class="book-desc">42 条操作按 6 大场景分类，配示意图讲清「逆透视」「合并 vs 追加」这些抽象概念。每条给「点哪里」的操作步骤 + 对应 M 函数写法，重点条目标了红标。</div>
+    <div class="book-meta">
+      <span class="pill">入门必知</span><span class="pill">数据清洗</span><span class="pill">结构转换</span>
+      <span class="pill">合并追加</span><span class="pill">M 函数</span><span class="pill">自动化避坑</span>
+    </div>
+  </a>
+
+  <div class="tip">
+    <b>使用建议：</b>把本页加入手机浏览器书签或添加到主屏幕。查函数/语句 → 复制语法 → 改改用；
+    学习路径：先 Excel 打基础，再 SQL 进阶，Power Query 做自动化，三本手册页脚可互相跳转。
+  </div>
+</main>
+
+<footer>内容持续补充中 · 手机浏览器横竖屏均可查阅</footer>
+
+</body>
+</html>

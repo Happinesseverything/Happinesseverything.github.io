@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power Query 速查手册</title>
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-mid: #378ADD;
+    --blue-bg: #E6F1FB;
+    --blue-bg-soft: #F2F8FD;
+    --page-bg: #F4F8FC;
+    --card-border: rgba(24, 95, 165, 0.14);
+    --text: #1F2937;
+    --text-2: #5B6B7C;
+    --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--page-bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 16px 20px 12px;
+  }
+  .header-inner { max-width: 1100px; margin: 0 auto; }
+  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  h1 { font-size: 20px; font-weight: 600; color: var(--blue); letter-spacing: 0.5px; }
+  .subtitle { font-size: 13px; color: var(--text-2); }
+  .count-badge {
+    font-size: 12px; background: var(--blue-bg); color: var(--blue);
+    padding: 2px 10px; border-radius: 999px; font-weight: 500;
+  }
+
+  .search-wrap { position: relative; margin-bottom: 10px; }
+  .search-wrap svg {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--blue-mid); pointer-events: none;
+  }
+  #search {
+    width: 100%; padding: 11px 16px 11px 40px;
+    border: 1px solid var(--card-border); border-radius: 12px;
+    background: #fff; font-size: 14px; font-family: var(--sans); color: var(--text);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  #search:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.15); }
+  #search::placeholder { color: #9AA8B5; }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--card-border); background: #fff; color: var(--text-2);
+    cursor: pointer; user-select: none; transition: all .15s; font-family: var(--sans);
+  }
+  .chip:hover { border-color: var(--blue-mid); color: var(--blue); }
+  .chip.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 500; }
+  .chip .n { font-size: 11px; opacity: .75; margin-left: 3px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 22px 20px 60px; }
+
+  .tip-box {
+    background: linear-gradient(135deg, #EAF3FC 0%, #F4F9FE 100%);
+    border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 20px; margin-bottom: 26px;
+  }
+  .tip-box h2 { font-size: 15px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+  .tip-box p { font-size: 13px; color: var(--text); line-height: 1.8; }
+  .tip-box b { color: var(--blue); font-weight: 500; }
+
+  .cat-section { margin-bottom: 34px; }
+  .cat-title {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    font-size: 16px; font-weight: 600; color: var(--blue);
+  }
+  .cat-title::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--blue-mid); }
+  .cat-title .hint { font-size: 12px; font-weight: 400; color: var(--text-2); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+  .card {
+    background: #fff; border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 16px 12px; position: relative;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue); }
+  .badge-new {
+    font-size: 10px; background: #FCEBEB; color: #A32D2D;
+    padding: 1px 6px; border-radius: 4px; margin-left: 6px; font-weight: 500;
+    vertical-align: middle; font-family: var(--sans);
+  }
+  .star {
+    background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
+    color: #C7D3DE; padding: 2px 4px; transition: color .15s, transform .15s;
+  }
+  .star:hover { color: var(--blue-mid); transform: scale(1.15); }
+  .star.faved { color: #F0A92E; }
+
+  /* 图示 */
+  .fig {
+    background: #FAFCFE; border: 1px solid rgba(24,95,165,.10);
+    border-radius: 10px; padding: 8px 10px 4px; margin-bottom: 9px;
+  }
+  .fig svg { display: block; width: 100%; height: auto; }
+
+  .steps {
+    font-family: var(--mono); font-size: 12.5px; background: var(--blue-bg-soft);
+    border: 1px solid rgba(24,95,165,.10); color: #0C447C;
+    padding: 7px 10px; border-radius: 8px; margin-bottom: 8px;
+    overflow-x: auto; white-space: pre-wrap; word-break: break-all; scrollbar-width: thin;
+  }
+  .steps .lbl { font-family: var(--sans); font-size: 11px; color: #7A93A8; }
+  .desc { font-size: 13.5px; color: var(--text); margin-bottom: 8px; }
+  .desc b { color: #B45309; font-weight: 500; }
+  .ex {
+    font-family: var(--mono); font-size: 12px; color: var(--text-2);
+    background: #F7F9FB; border-radius: 8px; padding: 6px 10px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+  }
+  .ex .lbl { font-family: var(--sans); font-size: 11px; color: #9AA8B5; margin-right: 6px; }
+  .copy-btn {
+    position: absolute; right: 12px; bottom: 10px;
+    font-size: 11px; color: var(--blue); background: var(--blue-bg);
+    border: none; border-radius: 6px; padding: 3px 9px; cursor: pointer;
+    opacity: 0; transition: opacity .15s; font-family: var(--sans);
+  }
+  .card:hover .copy-btn { opacity: 1; }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+
+  .empty { display: none; text-align: center; padding: 60px 20px; color: var(--text-2); }
+  .empty .big { font-size: 40px; margin-bottom: 10px; }
+
+  .res-section { margin-top: 8px; }
+  .res-group-title {
+    font-size: 14px; font-weight: 600; color: var(--blue);
+    margin: 0 0 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .res-group-title .tag {
+    font-size: 11px; font-weight: 400; color: var(--text-2);
+    background: #fff; border: 1px solid var(--card-border);
+    padding: 1px 8px; border-radius: 999px;
+  }
+  .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .res-card {
+    display: block; text-decoration: none;
+    background: #fff; border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 12px 14px; transition: box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .res-card:hover { box-shadow: 0 6px 18px rgba(24,95,165,.10); transform: translateY(-1px); border-color: var(--blue-mid); }
+  .res-name { font-size: 13.5px; font-weight: 600; color: var(--blue); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+  .res-name .arrow { font-size: 12px; color: var(--blue-mid); margin-left: auto; }
+  .res-url { font-family: var(--mono); font-size: 11px; color: #8FA5B8; margin-bottom: 5px; }
+  .res-desc { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+  .res-card.hot { border-color: rgba(24,95,165,.35); background: var(--blue-bg-soft); }
+  .res-card.hot .res-name::before {
+    content: "荐"; font-size: 10px; font-weight: 500; color: #fff;
+    background: var(--blue); border-radius: 4px; padding: 1px 5px;
+  }
+
+  footer {
+    text-align: center; font-size: 12px; color: var(--text-2);
+    padding: 24px 20px 40px; line-height: 2;
+  }
+  footer b { color: var(--blue); font-weight: 500; }
+  footer a { color: var(--blue); text-decoration: none; border-bottom: 1px dashed var(--blue-mid); }
+
+  @media (max-width: 640px) {
+    header { padding: 12px 14px 10px; }
+    main { padding: 16px 14px 50px; }
+    h1 { font-size: 18px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="title-row">
+      <h1>Power Query 速查手册</h1>
+      <span class="count-badge" id="totalBadge"></span>
+      <span class="subtitle">带图示 · 点哪里 + M 函数都有</span>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="搜索操作 / 场景，如：合并、逆透视、去重、拆分、刷新…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main>
+  <div class="tip-box">
+    <h2>先记住一句话</h2>
+    <p>Power Query 不是"又一个函数库"，它是<b>一台会录像的清洗机器</b>：你用鼠标点的每一步都被记下来，下次数据换了，点一下刷新，它按同样的步骤重跑一遍。<br>
+    所以入门阶段<b>别碰 M 语言</b>，先把界面点明白；等你想改某一步的细节了，再去看右侧"应用的步骤"对应的那行代码，改起来最省力。</p>
+  </div>
+</main>
+
+<main id="main" style="padding-top:0;"></main>
+
+<div class="empty" id="empty">
+  <div class="big">⌕</div>
+  <div>没搜到相关操作，换个关键词试试？</div>
+  <div style="font-size:12px;margin-top:6px;">比如搜「合并」「追加」「逆透视」「去重」这类场景词</div>
+</div>
+
+<main style="padding-top:0;">
+  <div class="res-section">
+    <p class="res-group-title">视频教程<span class="tag">全部免费</span></p>
+    <div class="res-grid">
+      <a class="res-card hot" href="https://space.bilibili.com/437239552" target="_blank" rel="noopener">
+        <div class="res-name">孙兴华 Power Query 系列<span class="arrow">→</span></div>
+        <div class="res-url">bilibili.com · 110+ 集</div>
+        <div class="res-desc">最系统的免费课，从自定义列一路讲到 M 函数（Table/Text/Date/Number 各类），配课件下载。跟他学过的都知道风格</div>
+      </a>
+      <a class="res-card hot" href="https://www.bilibili.com/video/BV1ky4y1o7E1" target="_blank" rel="noopener">
+        <div class="res-name">Excel星球 · PQ 案例视频<span class="arrow">→</span></div>
+        <div class="res-url">bilibili.com</div>
+        <div class="res-desc">一期解决一个问题：二维表转一维表、多工作表动态合并、网页数据抓取，十几分钟见效</div>
+      </a>
+      <a class="res-card" href="https://www.bilibili.com/video/BV11ezsBCE58" target="_blank" rel="noopener">
+        <div class="res-name">2026 PowerBI 入门到实战<span class="arrow">→</span></div>
+        <div class="res-url">bilibili.com · 24 集</div>
+        <div class="res-desc">第 03-10 章专讲 Power Query 和 M 函数三大容器，后面接 Power Pivot、DAX，一路学到 BI</div>
+      </a>
+      <a class="res-card" href="https://www.excelhome.net" target="_blank" rel="noopener">
+        <div class="res-name">ExcelHome 社区<span class="arrow">→</span></div>
+        <div class="res-url">excelhome.net</div>
+        <div class="res-desc">中文图文案例最全，搜"合并多工作簿"这类具体问题一搜一个准，还能发帖求助</div>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div><b>使用方法：</b>先按界面操作找按钮，想改细节了再看 M 函数那栏</div>
+  <div>配套手册：<a href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Excel 函数速查手册</a> · <a href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">SQL 速查手册</a></div>
+</footer>
+
+<script>
+/* ============ 图示（SVG） ============ */
+const HEAD = "#E6F1FB", CELL = "#FFFFFF", LINE = "rgba(24,95,165,.35)", DIM = "#5B6B7C", ACC = "#185FA5";
+
+const FIG_ENTRY = `<svg viewBox="0 0 300 104" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <rect x="6" y="6" width="288" height="92" rx="8" fill="#F7FBFE" stroke="${LINE}" stroke-width="0.8"/>
+  <rect x="6" y="6" width="78" height="92" rx="8" fill="${HEAD}" stroke="${LINE}" stroke-width="0.8"/>
+  <text x="45" y="24" font-size="9" fill="${DIM}" text-anchor="middle">查询列表</text>
+  <rect x="16" y="32" width="58" height="12" rx="3" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+  <text x="45" y="41" font-size="8" fill="${DIM}" text-anchor="middle">查询1</text>
+  <rect x="16" y="48" width="58" height="12" rx="3" fill="${ACC}" stroke="${ACC}" stroke-width="0.6"/>
+  <text x="45" y="57" font-size="8" fill="#fff" text-anchor="middle">查询2 ←</text>
+  <rect x="92" y="10" width="126" height="84" rx="6" fill="#fff" stroke="${LINE}" stroke-width="0.8"/>
+  <text x="155" y="24" font-size="9" fill="${DIM}" text-anchor="middle">数据预览区</text>
+  <rect x="100" y="30" width="110" height="10" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="155" y="38" font-size="8" fill="${ACC}" text-anchor="middle">列A | 列B | 列C</text>
+  <rect x="100" y="42" width="110" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="100" y="54" width="110" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="100" y="66" width="110" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="226" y="10" width="62" height="84" rx="6" fill="#fff" stroke="${LINE}" stroke-width="0.8"/>
+  <text x="257" y="24" font-size="9" fill="${DIM}" text-anchor="middle">应用的步骤</text>
+  <rect x="232" y="30" width="50" height="10" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="257" y="38" font-size="8" fill="${ACC}" text-anchor="middle">源</text>
+  <rect x="232" y="42" width="50" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="257" y="50" font-size="8" fill="${DIM}" text-anchor="middle">更改类型</text>
+  <rect x="232" y="54" width="50" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="257" y="62" font-size="8" fill="${DIM}" text-anchor="middle">筛选行</text>
+  <rect x="232" y="66" width="50" height="10" rx="2" fill="${ACC}" stroke="${ACC}" stroke-width="0.5"/>
+  <text x="257" y="74" font-size="8" fill="#fff" text-anchor="middle">逆透视</text>
+  <text x="257" y="88" font-size="7.5" fill="#8FA5B8" text-anchor="middle">点一步记一步</text>
+</svg>`;
+
+const FIG_UNPIVOT = `<svg viewBox="0 0 300 104" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <text x="4" y="12" font-size="9" fill="${DIM}">二维表（月份占着列头）</text>
+  <text x="196" y="12" font-size="9" fill="${DIM}">一维表（能做透视分析了）</text>
+  <g>
+    <rect x="6" y="20" width="30" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">项目</text>
+    <rect x="38" y="20" width="26" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="51" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">1月</text>
+    <rect x="66" y="20" width="26" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="79" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">2月</text>
+    <rect x="94" y="20" width="26" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="107" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">3月</text>
+    <rect x="6" y="37" width="30" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="47.5" font-size="8.5" fill="${DIM}" text-anchor="middle">甲</text>
+    <rect x="38" y="37" width="26" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="51" y="47.5" font-size="8.5" fill="${DIM}" text-anchor="middle">10</text>
+    <rect x="66" y="37" width="26" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="79" y="47.5" font-size="8.5" fill="${DIM}" text-anchor="middle">20</text>
+    <rect x="94" y="37" width="26" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="107" y="47.5" font-size="8.5" fill="${DIM}" text-anchor="middle">30</text>
+    <rect x="6" y="54" width="30" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="64.5" font-size="8.5" fill="${DIM}" text-anchor="middle">乙</text>
+    <rect x="38" y="54" width="26" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="51" y="64.5" font-size="8.5" fill="${DIM}" text-anchor="middle">15</text>
+    <rect x="66" y="54" width="26" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="79" y="64.5" font-size="8.5" fill="${DIM}" text-anchor="middle">25</text>
+    <rect x="94" y="54" width="26" height="15" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="107" y="64.5" font-size="8.5" fill="${DIM}" text-anchor="middle">35</text>
+  </g>
+  <path d="M128 48 L160 48" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar)"/>
+  <text x="144" y="42" font-size="8" fill="${ACC}" text-anchor="middle">逆透视</text>
+  <g>
+    <rect x="168" y="20" width="34" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="185" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">项目</text>
+    <rect x="204" y="20" width="34" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="221" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">月份</text>
+    <rect x="240" y="20" width="34" height="15" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="257" y="30.5" font-size="8.5" fill="${ACC}" text-anchor="middle">金额</text>
+    <rect x="168" y="37" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="185" y="46.5" font-size="8" fill="${DIM}" text-anchor="middle">甲</text>
+    <rect x="204" y="37" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="221" y="46.5" font-size="8" fill="${DIM}" text-anchor="middle">1月</text>
+    <rect x="240" y="37" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="257" y="46.5" font-size="8" fill="${DIM}" text-anchor="middle">10</text>
+    <rect x="168" y="52" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="185" y="61.5" font-size="8" fill="${DIM}" text-anchor="middle">甲</text>
+    <rect x="204" y="52" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="221" y="61.5" font-size="8" fill="${DIM}" text-anchor="middle">2月</text>
+    <rect x="240" y="52" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="257" y="61.5" font-size="8" fill="${DIM}" text-anchor="middle">20</text>
+    <rect x="168" y="67" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="185" y="76.5" font-size="8" fill="${DIM}" text-anchor="middle">甲</text>
+    <rect x="204" y="67" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="221" y="76.5" font-size="8" fill="${DIM}" text-anchor="middle">3月</text>
+    <rect x="240" y="67" width="34" height="13" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="257" y="76.5" font-size="8" fill="${DIM}" text-anchor="middle">30</text>
+    <rect x="168" y="82" width="106" height="13" rx="2" fill="#FAFCFE" stroke="rgba(24,95,165,.18)" stroke-width="0.6" stroke-dasharray="3 2"/>
+    <text x="221" y="91.5" font-size="8" fill="#8FA5B8" text-anchor="middle">… 乙的三行照此类推</text>
+  </g>
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_PIVOT = `<svg viewBox="0 0 300 92" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <text x="4" y="10" font-size="9" fill="${DIM}">一维明细（很长）</text>
+  <text x="206" y="10" font-size="9" fill="${DIM}">二维报表（好看）</text>
+  <g>
+    <rect x="6" y="16" width="30" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="26" font-size="8.5" fill="${ACC}" text-anchor="middle">月份</text>
+    <rect x="38" y="16" width="30" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="53" y="26" font-size="8.5" fill="${ACC}" text-anchor="middle">金额</text>
+    <rect x="6" y="32" width="30" height="12" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="41" font-size="8" fill="${DIM}" text-anchor="middle">1月</text>
+    <rect x="38" y="32" width="30" height="12" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="53" y="41" font-size="8" fill="${DIM}" text-anchor="middle">10</text>
+    <rect x="6" y="46" width="30" height="12" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="55" font-size="8" fill="${DIM}" text-anchor="middle">2月</text>
+    <rect x="38" y="46" width="30" height="12" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="53" y="55" font-size="8" fill="${DIM}" text-anchor="middle">20</text>
+    <rect x="6" y="60" width="30" height="12" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="21" y="69" font-size="8" fill="${DIM}" text-anchor="middle">3月</text>
+    <rect x="38" y="60" width="30" height="12" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="53" y="69" font-size="8" fill="${DIM}" text-anchor="middle">30</text>
+  </g>
+  <path d="M76 45 L118 45" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar2)"/>
+  <text x="97" y="39" font-size="8" fill="${ACC}" text-anchor="middle">透视列</text>
+  <g>
+    <rect x="126" y="26" width="56" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="154" y="36" font-size="8.5" fill="${ACC}" text-anchor="middle">1月</text>
+    <rect x="184" y="26" width="56" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="212" y="36" font-size="8.5" fill="${ACC}" text-anchor="middle">2月</text>
+    <rect x="242" y="26" width="52" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="268" y="36" font-size="8.5" fill="${ACC}" text-anchor="middle">3月</text>
+    <rect x="126" y="42" width="56" height="16" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="154" y="53" font-size="8.5" fill="${DIM}" text-anchor="middle">10</text>
+    <rect x="184" y="42" width="56" height="16" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="212" y="53" font-size="8.5" fill="${DIM}" text-anchor="middle">20</text>
+    <rect x="242" y="42" width="52" height="16" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="268" y="53" font-size="8.5" fill="${DIM}" text-anchor="middle">30</text>
+  </g>
+  <text x="150" y="76" font-size="8" fill="#8FA5B8" text-anchor="middle">注意：透视列必须选一个「值列」做汇总方式</text>
+  <defs><marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_APPEND = `<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <text x="150" y="11" font-size="9" fill="${ACC}" text-anchor="middle">追加查询 = 上下摞起来（行数变多，列不变）</text>
+  <rect x="6" y="20" width="82" height="30" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.7"/>
+  <text x="47" y="32" font-size="8.5" fill="${ACC}" text-anchor="middle">表A · 1月</text>
+  <text x="47" y="44" font-size="8" fill="${DIM}" text-anchor="middle">20 行</text>
+  <text x="47" y="62" font-size="11" fill="${ACC}" text-anchor="middle">+</text>
+  <rect x="6" y="68" width="82" height="26" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.7"/>
+  <text x="47" y="79" font-size="8.5" fill="${ACC}" text-anchor="middle">表B · 2月</text>
+  <text x="47" y="90" font-size="8" fill="${DIM}" text-anchor="middle">25 行</text>
+  <path d="M96 57 L128 57" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar3)"/>
+  <text x="112" y="50" font-size="8" fill="${ACC}" text-anchor="middle">追加</text>
+  <rect x="136" y="24" width="158" height="66" rx="4" fill="#fff" stroke="${ACC}" stroke-width="1"/>
+  <text x="215" y="42" font-size="9" fill="${ACC}" text-anchor="middle">合并后的长表</text>
+  <rect x="146" y="48" width="138" height="9" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="146" y="59" width="138" height="9" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="146" y="70" width="138" height="9" rx="2" fill="#fff" stroke="rgba(24,95,165,.12)" stroke-width="0.5" stroke-dasharray="3 2"/>
+  <text x="215" y="78" font-size="7.5" fill="#8FA5B8" text-anchor="middle">45 行（列必须一致）</text>
+  <defs><marker id="ar3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_MERGE = `<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <text x="150" y="11" font-size="9" fill="${ACC}" text-anchor="middle">合并查询 = 左右拼起来（列变多，按关键列匹配）</text>
+  <rect x="6" y="22" width="84" height="52" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.7"/>
+  <text x="48" y="34" font-size="8.5" fill="${ACC}" text-anchor="middle">主表（项目）</text>
+  <rect x="14" y="40" width="68" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="48" y="47" font-size="7.5" fill="${DIM}" text-anchor="middle">编码</text>
+  <rect x="14" y="50" width="68" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="14" y="60" width="68" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="98" y="22" width="84" height="52" rx="4" fill="#F1EFE8" stroke="${LINE}" stroke-width="0.7"/>
+  <text x="140" y="34" font-size="8.5" fill="${DIM}" text-anchor="middle">查找表（资金）</text>
+  <rect x="106" y="40" width="68" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="140" y="47" font-size="7.5" fill="${DIM}" text-anchor="middle">编码</text>
+  <rect x="106" y="50" width="68" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="106" y="60" width="68" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <path d="M90 48 L92 48" fill="none" stroke="${ACC}" stroke-width="1.2" stroke-dasharray="2 2"/>
+  <circle cx="91" cy="48" r="3" fill="${ACC}"/>
+  <text x="140" y="88" font-size="7.5" fill="#8FA5B8" text-anchor="middle">两边用同一个「编码」对上</text>
+  <path d="M190 48 L212 48" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar4)"/>
+  <text x="201" y="42" font-size="8" fill="${ACC}" text-anchor="middle">合并</text>
+  <rect x="220" y="26" width="74" height="48" rx="4" fill="#fff" stroke="${ACC}" stroke-width="1"/>
+  <text x="257" y="38" font-size="8" fill="${ACC}" text-anchor="middle">编码 + 资金</text>
+  <rect x="226" y="44" width="62" height="8" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="226" y="54" width="62" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <rect x="226" y="62" width="62" height="8" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+  <defs><marker id="ar4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_SPLIT = `<svg viewBox="0 0 300 76" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <rect x="8" y="18" width="90" height="40" rx="4" fill="#fff" stroke="${LINE}" stroke-width="0.7"/>
+  <rect x="8" y="18" width="90" height="14" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+  <text x="53" y="28.5" font-size="8.5" fill="${ACC}" text-anchor="middle">乡镇-项目</text>
+  <text x="53" y="45" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇-饮水工程</text>
+  <text x="53" y="55" font-size="7.5" fill="#8FA5B8" text-anchor="middle">一坨，没法分组</text>
+  <path d="M104 38 L128 38" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar5)"/>
+  <text x="116" y="32" font-size="8" fill="${ACC}" text-anchor="middle">按 - 拆分</text>
+  <rect x="136" y="18" width="74" height="40" rx="4" fill="#fff" stroke="${ACC}" stroke-width="0.9"/>
+  <rect x="136" y="18" width="74" height="14" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+  <text x="173" y="28.5" font-size="8.5" fill="${ACC}" text-anchor="middle">乡镇</text>
+  <text x="173" y="45" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+  <rect x="216" y="18" width="76" height="40" rx="4" fill="#fff" stroke="${ACC}" stroke-width="0.9"/>
+  <rect x="216" y="18" width="76" height="14" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+  <text x="254" y="28.5" font-size="8.5" fill="${ACC}" text-anchor="middle">项目</text>
+  <text x="254" y="45" font-size="8.5" fill="${DIM}" text-anchor="middle">饮水工程</text>
+  <text x="215" y="68" font-size="7.5" fill="#8FA5B8" text-anchor="middle">拆开就能按乡镇做透视表了</text>
+  <defs><marker id="ar5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_GROUP = `<svg viewBox="0 0 300 84" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <text x="4" y="10" font-size="9" fill="${DIM}">明细（很多行）</text>
+  <text x="200" y="10" font-size="9" fill="${DIM}">按乡镇汇总</text>
+  <g>
+    <rect x="6" y="16" width="52" height="12" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="32" y="25" font-size="8" fill="${ACC}" text-anchor="middle">乡镇</text>
+    <rect x="60" y="16" width="40" height="12" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="80" y="25" font-size="8" fill="${ACC}" text-anchor="middle">金额</text>
+    <rect x="6" y="30" width="52" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="32" y="37.5" font-size="7.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+    <rect x="60" y="30" width="40" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="80" y="37.5" font-size="7.5" fill="${DIM}" text-anchor="middle">100</text>
+    <rect x="6" y="42" width="52" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="32" y="49.5" font-size="7.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+    <rect x="60" y="42" width="40" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="80" y="49.5" font-size="7.5" fill="${DIM}" text-anchor="middle">50</text>
+    <rect x="6" y="54" width="52" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="32" y="61.5" font-size="7.5" fill="${DIM}" text-anchor="middle">白云乡</text>
+    <rect x="60" y="54" width="40" height="10" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="80" y="61.5" font-size="7.5" fill="${DIM}" text-anchor="middle">80</text>
+  </g>
+  <path d="M108 40 L140 40" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar6)"/>
+  <text x="124" y="34" font-size="8" fill="${ACC}" text-anchor="middle">分组依据</text>
+  <g>
+    <rect x="148" y="26" width="72" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="184" y="36" font-size="8.5" fill="${ACC}" text-anchor="middle">乡镇</text>
+    <rect x="222" y="26" width="72" height="14" rx="2" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="258" y="36" font-size="8.5" fill="${ACC}" text-anchor="middle">金额求和</text>
+    <rect x="148" y="42" width="72" height="14" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="184" y="52" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+    <rect x="222" y="42" width="72" height="14" rx="2" fill="#fff" stroke="${ACC}" stroke-width="0.8"/>
+    <text x="258" y="52" font-size="8.5" fill="${ACC}" text-anchor="middle">150</text>
+    <rect x="148" y="58" width="72" height="14" rx="2" fill="#fff" stroke="${LINE}" stroke-width="0.5"/>
+    <text x="184" y="68" font-size="8.5" fill="${DIM}" text-anchor="middle">白云乡</text>
+    <rect x="222" y="58" width="72" height="14" rx="2" fill="#fff" stroke="${ACC}" stroke-width="0.8"/>
+    <text x="258" y="68" font-size="8.5" fill="${ACC}" text-anchor="middle">80</text>
+  </g>
+  <defs><marker id="ar6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_FILL = `<svg viewBox="0 0 300 76" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <rect x="8" y="14" width="86" height="48" rx="4" fill="#fff" stroke="${LINE}" stroke-width="0.7"/>
+  <rect x="8" y="14" width="86" height="13" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="51" y="23.5" font-size="8" fill="${ACC}" text-anchor="middle">乡镇（有合并单元格）</text>
+  <text x="51" y="38" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+  <text x="51" y="48" font-size="8.5" fill="#C7D3DE" text-anchor="middle">（空）</text>
+  <text x="51" y="58" font-size="8.5" fill="#C7D3DE" text-anchor="middle">（空）</text>
+  <path d="M100 38 L128 38" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar7)"/>
+  <text x="114" y="32" font-size="8" fill="${ACC}" text-anchor="middle">填充↓</text>
+  <rect x="136" y="14" width="86" height="48" rx="4" fill="#fff" stroke="${ACC}" stroke-width="0.9"/>
+  <rect x="136" y="14" width="86" height="13" rx="4" fill="${HEAD}" stroke="${LINE}" stroke-width="0.5"/>
+  <text x="179" y="23.5" font-size="8" fill="${ACC}" text-anchor="middle">乡镇（补齐了）</text>
+  <text x="179" y="38" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+  <text x="179" y="48" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+  <text x="179" y="58" font-size="8.5" fill="${DIM}" text-anchor="middle">青山镇</text>
+  <text x="240" y="38" font-size="8" fill="#8FA5B8" text-anchor="middle">系统导出的报表</text>
+  <text x="240" y="50" font-size="8" fill="#8FA5B8" text-anchor="middle">常带合并单元格，</text>
+  <text x="240" y="60" font-size="8" fill="#8FA5B8" text-anchor="middle">先填充再分析</text>
+  <defs><marker id="ar7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+const FIG_FOLDER = `<svg viewBox="0 0 300 92" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
+  <text x="150" y="11" font-size="9" fill="${ACC}" text-anchor="middle">文件夹导入：新文件往里一丢，刷新就合并</text>
+  <g>
+    <rect x="10" y="20" width="30" height="22" rx="3" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="25" y="34" font-size="7.5" fill="${ACC}" text-anchor="middle">1月</text>
+    <rect x="44" y="20" width="30" height="22" rx="3" fill="${HEAD}" stroke="${LINE}" stroke-width="0.6"/>
+    <text x="59" y="34" font-size="7.5" fill="${ACC}" text-anchor="middle">2月</text>
+    <rect x="78" y="20" width="30" height="22" rx="3" fill="#F1EFE8" stroke="${LINE}" stroke-width="0.6" stroke-dasharray="3 2"/>
+    <text x="93" y="34" font-size="7.5" fill="#8FA5B8" text-anchor="middle">3月</text>
+    <text x="93" y="52" font-size="7" fill="#8FA5B8" text-anchor="middle">新增</text>
+    <text x="59" y="58" font-size="8" fill="${DIM}" text-anchor="middle">报表文件夹</text>
+  </g>
+  <path d="M116 34 L142 34" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar8)"/>
+  <rect x="150" y="18" width="70" height="34" rx="4" fill="#fff" stroke="${LINE}" stroke-width="0.7"/>
+  <text x="185" y="30" font-size="8" fill="${ACC}" text-anchor="middle">Power Query</text>
+  <text x="185" y="41" font-size="7.5" fill="${DIM}" text-anchor="middle">读取整个文件夹</text>
+  <text x="185" y="49" font-size="7.5" fill="${DIM}" text-anchor="middle">统一清洗规则</text>
+  <path d="M226 34 L252 34" fill="none" stroke="${ACC}" stroke-width="1.4" marker-end="url(#ar8)"/>
+  <rect x="256" y="20" width="40" height="30" rx="4" fill="#fff" stroke="${ACC}" stroke-width="1"/>
+  <text x="276" y="33" font-size="7.5" fill="${ACC}" text-anchor="middle">总表</text>
+  <text x="276" y="43" font-size="7.5" fill="${DIM}" text-anchor="middle">一键刷新</text>
+  <text x="150" y="72" font-size="8" fill="${DIM}" text-anchor="middle">以后每月：把新报表丢进文件夹 → 数据 → 刷新全部</text>
+  <text x="150" y="84" font-size="7.5" fill="#8FA5B8" text-anchor="middle">不用改任何公式，也不用重新做一遍清洗步骤</text>
+  <defs><marker id="ar8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+</svg>`;
+
+/* ============ 分类 ============ */
+const CATS = [
+  { id: "start", name: "入门必知", hint: "先搞明白它是什么、在哪" },
+  { id: "clean", name: "数据清洗", hint: "把脏数据收拾干净" },
+  { id: "shape", name: "结构转换", hint: "横表竖表互转、分组汇总" },
+  { id: "merge", name: "合并与追加", hint: "多表合一，最容易搞混的两兄弟" },
+  { id: "mfun",  name: "M 函数", hint: "想改细节了再来看这栏" },
+  { id: "auto",  name: "自动化与避坑", hint: "一次设置，永久刷新" }
+];
+
+const FNS = [
+  // ===== 入门必知 =====
+  { cat:"start", name:"Power Query 在哪", fig:FIG_ENTRY,
+    steps:"Excel 2016 及以上：数据 → 获取数据 → 启动 Power Query 编辑器\nExcel 2010/2013：需先装微软官方插件（搜 「Power Query 加载项」）\nWPS：部分版本在「数据 → 导入数据」里有类似功能",
+    desc:"它早就内置在你的 Excel 里了，只是藏得深。<b>Excel 2021 / 365 里叫「获取和转换」</b>，功能一样。第一次用可能要等几秒加载。",
+    ex:"数据 → 获取数据 → 自文件 → 从工作簿" },
+  { cat:"start", name:"三种常见数据来源",
+    steps:"① 从工作簿/当前表格：处理手头这一份\n② 从文件夹：批量合并一堆结构相同的文件 ★\n③ 从数据库：可直接连 Oracle / SQL Server",
+    desc:"第三种你可能用得上——既然本机有 Oracle，Power Query 能直接连上去取数，<b>不用先导出成 Excel 再处理</b>。需要填服务器地址和服务名。",
+    ex:"获取数据 → 自数据库 → 从 Oracle 数据库" },
+  { cat:"start", name:"编辑器三块区域",
+    steps:"左边：查询列表（你建了几个流程）\n中间：数据预览（看到的就是清洗中的样子）\n右边：应用的步骤（每点一次记一步）",
+    desc:"右侧那列「应用的步骤」是 Power Query 的灵魂。点任意一步可以<b>回看当时的数据长什么样</b>，点左边的叉能删除这一步，不用重来。",
+    ex:"想撤销：在右侧步骤里点某一步左边的 ✕" },
+  { cat:"start", new:true, name:"核心概念：查询是录像",
+    steps:"你点的每一步 → 被记成一串步骤\n下次数据变了 → 刷新 → 同样的步骤重跑一遍",
+    desc:"这是它和普通 Excel 操作最大的区别：<b>普通操作是一次性的，PQ 是可重复的</b>。所以值得花时间把流程搭对，之后就一劳永逸。",
+    ex:"改完原始数据后：数据 → 刷新全部（Ctrl+Alt+F5）" },
+  { cat:"start", name:"上载方式怎么选",
+    steps:"关闭并上载 → 结果变成一张新工作表\n关闭并上载至… → 可选「仅创建连接」或「数据模型」",
+    desc:"数据量小、想直接看结果就用第一种；<b>数据量很大（几万行以上）建议选「仅创建连接」+ 后面用透视表接</b>，不然工作表会很卡。",
+    ex:"主页 → 关闭并上载（右下角小三角可换方式）" },
+
+  // ===== 数据清洗 =====
+  { cat:"clean", name:"将第一行用作标题",
+    steps:"主页 → 将第一行用作标题（或「转换」选项卡里同款按钮）",
+    desc:"系统导出的报表常把标题放在第二行、第一二行是说明文字。先把废行删掉，再点这个把第一行变成列名。<b>这一步没做对，后面全是坑。</b>",
+    ex:"先「删除行 → 删除最前面几行」删掉说明行，再提升标题" },
+  { cat:"clean", name:"更改数据类型",
+    steps:"点列标题左边的图标（ABC / 123 / 📅 样式）→ 选类型",
+    desc:"<b>必做步骤。</b>从系统导出的数字常常是文本格式，导致求和为 0、日期排序错乱。金额选「小数」或「定点小数」，日期选「日期」，编码如果补零要选「文本」。",
+    ex:"金额列图标点开 → 小数；编码列 → 文本（保住前导零）" },
+  { cat:"clean", name:"拆分列", fig:FIG_SPLIT,
+    steps:"选中列 → 转换 → 拆分列 → 按分隔符 / 按字符数",
+    desc:"按分隔符：选一个符号（-、/、空格都行），拆成几列。按字符数：固定位数拆，比如身份证号第 7 位开始取 8 位是出生日期。<b>拆完记得改类型。</b>",
+    ex:'拆分列 → 按分隔符 → 自定义 "-" → 拆分为：每次出现分隔符时' },
+  { cat:"clean", name:"替换值",
+    steps:"选中列 → 转换 → 替换值 → 填「要查找的值」和「替换为」",
+    desc:"批量改内容：把「镇」换成「乡」、把「#」换成空、把「暂无」换成 0。<b>要删掉某个内容就把「替换为」留空。</b>注意它替换的是整格完全匹配的内容。",
+    ex:'替换值：查找 "暂无" → 替换为 （留空即删除）' },
+  { cat:"clean", name:"筛选与删除行",
+    steps:"点列标题的下拉箭头 → 筛选\n主页 → 删除行 → 删除最前面几行 / 删除空行 / 删除重复项",
+    desc:"筛选在 PQ 里不是「藏起来」而是真的过滤掉，所以数据量会变小、跑得更快。<b>能早点筛就早点筛</b>，别把所有数据都留在流程里。",
+    ex:"删除行 → 删除最前面几行 → 输入 2（删掉报表前两行说明）" },
+  { cat:"clean", name:"删除重复项",
+    steps:"选中用于判断重复的列 → 主页 → 删除行 → 删除重复项",
+    desc:"<b>坑点：选中哪几列，就按哪几列判重。</b>只选「项目编码」= 按编码去重；全选 = 整行完全一样才删。想要「保留最新一条」得先按日期降序排，再去重（它保留第一次出现的）。",
+    ex:"先按「下达日期」降序排序 → 再选中编码列 → 删除重复项" },
+  { cat:"clean", name:"填充（向下）", fig:FIG_FILL,
+    steps:"选中列 → 转换 → 填充 → 向下",
+    desc:"专门治系统导出报表的「合并单元格」：标题只在第一行写了一次，下面是空的，直接分析会漏掉大半数据。<b>这是做透视表前必做的一步。</b>",
+    ex:"选中「乡镇」列 → 转换 → 填充 → 向下" },
+  { cat:"clean", name:"修剪与清除",
+    steps:"选中列 → 转换 → 格式 → 修剪（去首尾空格）/ 清除（去不可见字符）",
+    desc:"数据匹配不上的头号元凶就是看不见的空格。做合并查询之前，<b>先对关键列做一次「修剪 + 清除」</b>，能省掉大半的「为什么匹配不上」。",
+    ex:"选中「项目编码」列 → 转换 → 格式 → 修剪" },
+  { cat:"clean", name:"提取（不用写函数）",
+    steps:"选中列 → 转换 → 提取 → 长度 / 首字符 / 前几个字符 / 分隔符之前…",
+    desc:"常用的文本截取都做成了按钮，点一下就生成对应的 M 函数，<b>不用自己写代码</b>。想学 M 函数的话，这是最好的入口——做了之后去编辑栏看看它生成了啥。",
+    ex:"提取 → 前几个字符 → 输入 6（取编码前 6 位）" },
+
+  // ===== 结构转换 =====
+  { cat:"shape", new:true, name:"逆透视列", fig:FIG_UNPIVOT,
+    steps:"选中要保留的固定列（如「项目」）→ 转换 → 逆透视列 → 逆透视其他列",
+    desc:"<b>整个 Power Query 里最值钱的一个功能。</b>系统导出的交叉表（月份/乡镇占着列头）透视表根本没法分析，逆透视把它压成一维明细：一列放属性（月份）、一列放值（金额）。",
+    ex:'选中"项目"列 → 转换 → 逆透视其他列 → 得到 属性/值 两列，改名为 月份/金额' },
+  { cat:"shape", name:"透视列", fig:FIG_PIVOT,
+    steps:"选中那一列 → 转换 → 透视列 → 选「值列」和「聚合方式」",
+    desc:"逆透视的反向操作：把一维明细摊成二维报表。<b>必须选一个值列</b>，并决定重复值怎么处理（求和、计数、还是不聚合）。数据里有重复项时不聚合会报错。",
+    ex:'透视列 → 值列选"金额" → 聚合选"求和"' },
+  { cat:"shape", name:"分组依据", fig:FIG_GROUP,
+    steps:"转换 → 分组依据 → 选分组的列 → 填新列名、操作（求和/计数/平均/最大最小）",
+    desc:"相当于 SQL 的 GROUP BY，或者不用透视表就能出汇总。<b>比透视表强的地方：结果是张新表，可以继续往下处理</b>，还能一次加好几个汇总指标。",
+    ex:'分组依据 → 按"乡镇"分组 → 新增"金额合计"求和、"项目数"计数' },
+  { cat:"shape", name:"转置",
+    steps:"转换 → 转置",
+    desc:"整张表行列互换，行变列、列变行。用得不多，但碰到「导出来的表是横着的」时一秒解决。<b>转置后记得重新提升标题 + 改类型。</b>",
+    ex:"转换 → 转置 → 再将第一行用作标题" },
+  { cat:"shape", name:"合并列",
+    steps:"按住 Ctrl 选中多列 → 转换 → 合并列 → 选分隔符",
+    desc:"拆分的反向操作。常用来拼一个唯一键：比如「乡镇 + 项目名」拼成匹配用的关键列，方便做合并查询。",
+    ex:'合并列 → 分隔符选 "-" → 新列名填 "匹配键"' },
+  { cat:"shape", new:true, name:"添加自定义列",
+    steps:"添加列 → 自定义列 → 写公式（用 [列名] 引用列）",
+    desc:"相当于 Excel 里加一列公式，但一次搞定整列、不会因为行数变化出错。<b>这是学 M 函数最好的入口</b>——写完去编辑栏看看它生成的 Table.AddColumn 长啥样。",
+    ex:'=[金额] * 10000   或   =[下达日期] + 30' },
+  { cat:"shape", name:"添加条件列",
+    steps:"添加列 → 条件列 → 填 如果…则…否则…（可加多条）",
+    desc:"就是 IF / IFS 的图形版，不用写语法，填框就行。做金额分档、状态打标这类事，用它比手写公式快，还不会括号写错。",
+    ex:'如果 [金额] >= 100000 则 "大额" 否则如果 >= 10000 则 "中额" 否则 "小额"' },
+
+  // ===== 合并与追加 =====
+  { cat:"merge", new:true, name:"追加查询", fig:FIG_APPEND,
+    steps:"主页 → 追加查询 → 选择「两个表」或「三个或更多表」",
+    desc:"<b>上下摞起来：行数变多，列不变。</b>把 1 月、2 月、3 月的报表堆成一张总表就靠它。<b>前提是各表的列名和顺序要一致</b>，不一致的会单独占一列、全是 null。",
+    ex:"追加查询 → 三个或更多表 → 把 1月/2月/3月 都加进去" },
+  { cat:"merge", new:true, name:"合并查询", fig:FIG_MERGE,
+    steps:"主页 → 合并查询 → 选第二张表 → 两边各点一下用于匹配的列 → 选联接类型",
+    desc:"<b>左右拼起来：列变多，按关键列匹配。</b>这就是 SQL 的 JOIN、Excel 的 VLOOKUP，但比 VLOOKUP 强太多：可以多个关键列、不会因插入列错位、数据量大了跑得快。",
+    ex:'合并查询 → 匹配列选"项目编码" → 联接类型选"左外部"' },
+  { cat:"merge", new:true, name:"六种联接类型",
+    steps:"在「合并查询」对话框最下面选：\n左外部（推荐默认）· 右外部 · 完全外部 · 内部 · 左反 · 右反",
+    desc:"用得最多的是<b>左外部</b>（主表一行不丢，匹配不上补 null）。<b>左反</b>超实用：只看「主表里有、查找表里没有」的行——比如查哪些项目还没有资金下达。",
+    ex:"要找未匹配项：联接类型选「左反」→ 出来的就是缺资金的项目" },
+  { cat:"merge", name:"展开合并结果列",
+    steps:"合并后新列标题右边有个双向箭头 → 点开 → 勾选要展开的字段 → 确定（<b>取消勾选「使用原始列名作为前缀」</b>）",
+    desc:"合并完新列里装的是一张张「表」，必须展开才能用。<b>新手九成卡在这一步</b>——看到列里全是 Table 别慌，点那个箭头就对了。",
+    ex:"点新列标题的 ⇄ 箭头 → 只勾「下达金额」 → 确定" },
+  { cat:"merge", name:"引用查询（拆两段）",
+    steps:"在左侧查询上右键 → 引用",
+    desc:"基于现有查询再开一条分支，前面所有清洗步骤都继承过来，<b>改上游下游跟着变</b>。适合「一份清洗好的底表，出好几张不同用途的报表」这种场景。",
+    ex:"右键「清洗后底表」 → 引用 → 在新查询里做分组汇总" },
+
+  // ===== M 函数 =====
+  { cat:"mfun", new:true, name:"each 和 _ 是什么",
+    steps:"each [金额] > 100\n下划线 _ 代表「当前这一行」",
+    desc:"新手看 M 代码最懵的两个东西。<b>each 就是「对每一行做…」，_ 就是「当前这一行」</b>。所以 each [金额] > 100 读作：每一行，判断它的金额是不是大于 100。",
+    ex:'= Table.SelectRows(源, each [金额] > 100)' },
+  { cat:"mfun", name:"Table.SelectRows 筛选行",
+    steps:"Table.SelectRows(上一步, each 条件)",
+    desc:"按条件保留行。多条件用 and / or 连接（<b>注意 M 语言里是小写 and/or，不是 Excel 的 AND/OR 函数</b>）。",
+    ex:'= Table.SelectRows(源, each [乡镇] = "青山镇" and [金额] > 10000)' },
+  { cat:"mfun", name:"Table.TransformColumnTypes 改类型",
+    steps:"Table.TransformColumnTypes(上一步, {{\「列名\」, 类型}, …})",
+    desc:"批量改列类型。注意是<b>双层花括号</b>——外面一层包整个列表，里面每一列又是一个小列表，这个嵌套是新手最容易写错的地方。",
+    ex:'= Table.TransformColumnTypes(源, {{"金额", type number}, {"日期", type date}})' },
+  { cat:"mfun", name:"Table.AddColumn 加列",
+    steps:"Table.AddColumn(上一步, \「新列名\」, each 计算式)",
+    desc:"加一列自定义计算。第三个参数前面的 each 不能漏。<b>引用别的列用 [列名]，引用整行用 _。</b>",
+    ex:'= Table.AddColumn(源, "万元", each [金额] / 10000)' },
+  { cat:"mfun", name:"Table.Group 分组汇总",
+    steps:"Table.Group(上一步, {\「分组列\」}, {{\「新列名\」, 聚合函数, 类型}})",
+    desc:"M 里的分组依据。<b>第二个参数是分组列列表，第三个是汇总定义列表</b>，同样要注意花括号层数。聚合函数用 List.Sum / List.Count / List.Average。",
+    ex:'= Table.Group(源, {"乡镇"}, {{"金额合计", each List.Sum([金额]), type number}})' },
+  { cat:"mfun", name:"Table.Combine 合并表",
+    steps:"Table.Combine({表1, 表2, 表3})",
+    desc:"把好几张表纵向拼起来，就是「追加查询」背后的函数。<b>花括号里是一个表的列表</b>，所以可以写成动态的列表批量合并。",
+    ex:'= Table.Combine({表1, 表2})' },
+  { cat:"mfun", name:"Table.NestedJoin 合并查询",
+    steps:"Table.NestedJoin(表A, {\「关键列\」}, 表B, {\「关键列\」}, \「新列名\」, 联接类型)",
+    desc:"「合并查询」背后的函数。注意合并完得到的列还是嵌套表，<b>后面通常要接 Table.ExpandTableColumn 展开。</b>",
+    ex:'= Table.NestedJoin(源, {"编码"}, 资金表, {"编码"}, "资金", JoinKind.LeftOuter)' },
+  { cat:"mfun", name:"Table.ReplaceValue 替换值",
+    steps:"Table.ReplaceValue(上一步, 旧值, 新值, 替换方式, {\「列名\」})",
+    desc:"替换第 5 个参数指定哪些列。<b>替换方式一般写 Replacer.ReplaceText（文本）或 Replacer.ReplaceValue（整个值）。</b>",
+    ex:'= Table.ReplaceValue(源, "暂无", "", Replacer.ReplaceText, {"负责人"})' },
+  { cat:"mfun", name:"Table.Distinct 去重",
+    steps:"Table.Distinct(上一步, {\「列名\」})",
+    desc:"去重。第二个参数省略就是整行去重，写了就是按指定列去重。<b>它保留第一次出现的那行</b>，想留最新的要先排序。",
+    ex:'= Table.Distinct(源, {"项目编码"})' },
+  { cat:"mfun", name:"Table.FillDown 向下填充",
+    steps:"Table.FillDown(上一步, {\「列名\」})",
+    desc:"「填充 → 向下」的函数版。合并单元格拆出来的空值，就靠它补齐。<b>只能填向下的方向，向上用 Table.FillUp。</b>",
+    ex:'= Table.FillDown(源, {"乡镇"})' },
+  { cat:"mfun", name:"Text. 系列函数",
+    steps:"Text.Start(文本, 个数) 取前几个字\nText.End(文本, 个数) 取后几个字\nText.Contains(文本, \「关键字\」) 是否包含\nText.Trim(文本) 去空格\nText.Split(文本, \「-\」) 拆成列表",
+    desc:"处理文本。<b>注意 M 语言大小写敏感，Text 开头必须大写</b>，写错就报「无法识别的名称」。不确定的时候去界面点「提取」按钮，看它生成什么。",
+    ex:'= Text.Start([身份证号], 6)   取前 6 位' },
+  { cat:"mfun", name:"Date. 系列函数",
+    steps:"Date.Year(日期) / Date.Month(日期) / Date.Day(日期)\nDate.AddMonths(日期, 月数)\nDate.EndOfMonth(日期) 月末\nDate.From(值) 转成日期",
+    desc:"日期处理。做「按月汇总」最常用的是<b>先加一列 = Date.Year(日期) 和 Date.Month(日期)，再按这两列分组</b>，比在 Excel 里写 MONTH 公式稳。",
+    ex:'= Date.EndOfMonth([下达日期])   该月最后一天' },
+  { cat:"mfun", name:"Number. 系列函数",
+    steps:"Number.Round(数值, 位数) 四舍五入\nNumber.RoundUp(数值) 向上取整\nNumber.From(值) 转成数字\nNumber.Mod(被除数, 除数) 取余",
+    desc:"数值处理。<b>从系统导出的数字带空格或单位时，先用 Number.From 转</b>，转不动的会报错，正好把脏数据暴露出来。",
+    ex:'= Number.Round([金额] / 10000, 2)   转成万元留两位' },
+
+  // ===== 自动化与避坑 =====
+  { cat:"auto", new:true, name:"文件夹批量导入", fig:FIG_FOLDER,
+    steps:"数据 → 获取数据 → 自文件 → 从文件夹 → 选文件夹\n→ 点 Content 列标题的 ⇄ 展开按钮 → 确定\n→ 后面正常做清洗步骤",
+    desc:"<b>这是你最该学会的一个功能。</b>把各乡镇/各月的报表丢进同一个文件夹，一次设置好清洗规则，以后新增文件只要丢进去、点刷新，自动合并。<b>前提是各文件结构一致。</b>",
+    ex:"文件夹里放 1月.xlsx、2月.xlsx、3月.xlsx → 从文件夹导入 → 合并并转换数据" },
+  { cat:"auto", name:"数据源路径改成参数",
+    steps:"主页 → 管理参数 → 新建参数（名称填 文件夹路径，类型文本，值填路径）\n→ 在「源」步骤里把路径替换成这个参数",
+    desc:"解决「换台电脑就刷新失败」的问题。路径写死在代码里，文件夹一移动就报错；<b>做成参数后，换环境只要改参数值</b>，同事拿到也能用。",
+    ex:'源步骤改成：= Folder.Files(文件夹路径)' },
+  { cat:"auto", name:"刷新与刷新全部",
+    steps:"刷新当前查询：数据 → 刷新\n刷新所有：数据 → 刷新全部（快捷键 Ctrl + Alt + F5）",
+    desc:"<b>改了原始数据后必须刷新</b>，表格不会自己更新。很多人以为 PQ 会自动跟着变——不会，它只在你点刷新的时候重跑一遍。",
+    ex:"打开工作簿时自动刷新：查询上右键 → 属性 → 勾选「打开文件时刷新」" },
+  { cat:"auto", new:true, name:"常见报错与处理",
+    steps:"① 找不到数据源 → 文件路径变了/文件被改名\n② 找不到列「XXX」→ 源表列名改了，去「应用的步骤」里改对应步骤\n③ 无法转换类型 → 有脏数据（空格、文字混在数字里），先筛选看看是哪行\n④ 公式引发循环引用 → 查询引用了自己，检查引用关系",
+    desc:"报错时<b>不要急着删查询重做</b>。点报错的那一步，看错误提示里的具体行号和值，90% 的问题都能定位到某一行脏数据。",
+    ex:"点任意单元格的错误提示 → 看「错误」详情 → 定位到具体行" },
+  { cat:"auto", name:"跑得慢怎么办",
+    steps:"① 尽早筛选：把不要的行/列在前面几步就砍掉\n② 别用整列引用：PQ 里没有整列概念，但尽量别保留几百列\n③ 关闭「关系图」自动检测：选项里关掉后台数据分析\n④ 数据量特别大（几十万行）就上载到数据模型，别直接放工作表",
+    desc:"PQ 是「流式」处理，<b>前面步骤砍掉的数据，后面就不用再算了</b>，所以筛选越早越好。这一点和写 Excel 公式的思路正好相反。",
+    ex:"把「筛选行」步骤拖到「更改类型」之后、其他步骤之前" }
+];
+
+// ===== 渲染 =====
+const main = document.getElementById("main");
+const chipsEl = document.getElementById("chips");
+const emptyEl = document.getElementById("empty");
+const totalBadge = document.getElementById("totalBadge");
+const FAV_KEY = "pq-handbook-favs";
+let favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+let activeChip = "all";
+let keyword = "";
+
+function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function buildChips() {
+  const all = [{ id:"all", name:"全部" }, ...CATS, { id:"fav", name:"★ 已收藏" }];
+  chipsEl.innerHTML = all.map(c => {
+    const n = c.id === "all" ? FNS.length
+      : c.id === "fav" ? favs.size
+      : FNS.filter(f => f.cat === c.id).length;
+    return `<button class="chip${activeChip===c.id?" active":""}" data-id="${c.id}">${c.name}<span class="n">${n}</span></button>`;
+  }).join("");
+}
+
+function match(f) {
+  if (activeChip === "fav" && !favs.has(f.name)) return false;
+  if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
+  if (keyword) {
+    const hay = (f.name + " " + f.steps + " " + f.desc + " " + f.ex).toLowerCase();
+    if (!hay.includes(keyword)) return false;
+  }
+  return true;
+}
+
+function render() {
+  buildChips();
+  totalBadge.textContent = "共 " + FNS.length + " 条";
+  let html = "";
+  CATS.forEach(c => {
+    const list = FNS.filter(f => f.cat === c.id && match(f));
+    if (!list.length) return;
+    html += `<section class="cat-section">
+      <div class="cat-title">${c.name}<span class="hint">${c.hint}</span></div>
+      <div class="grid">${list.map(cardHTML).join("")}</div>
+    </section>`;
+  });
+  main.innerHTML = html;
+  emptyEl.style.display = html ? "none" : "block";
+}
+
+function cardHTML(f) {
+  const faved = favs.has(f.name);
+  return `<div class="card" data-name="${esc(f.name)}">
+    <div class="card-head">
+      <span class="fname">${esc(f.name)}${f.new ? '<span class="badge-new">重点</span>' : ''}</span>
+      <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
+    </div>
+    ${f.fig ? `<div class="fig">${f.fig}</div>` : ""}
+    <div class="steps"><span class="lbl">操作</span>${esc(f.steps)}</div>
+    <div class="desc">${f.desc}</div>
+    <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>
+    <button class="copy-btn">复制操作</button>
+  </div>`;
+}
+
+chipsEl.addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  activeChip = chip.dataset.id;
+  render();
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  keyword = e.target.value.trim().toLowerCase();
+  render();
+});
+
+main.addEventListener("click", e => {
+  const star = e.target.closest(".star");
+  const copyBtn = e.target.closest(".copy-btn");
+  if (star) {
+    const name = star.closest(".card").dataset.name;
+    favs.has(name) ? favs.delete(name) : favs.add(name);
+    saveFavs();
+    render();
+    return;
+  }
+  if (copyBtn) {
+    const txt = copyBtn.closest(".card").querySelector(".steps").textContent.replace("操作", "").trim();
+    navigator.clipboard.writeText(txt).then(() => {
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制操作", 1200);
+    }).catch(() => {
+      const ta = document.createElement("textarea");
+      ta.value = txt; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制操作", 1200);
+    });
+  }
+});
+
+render();
+</script>
+</body>
+</html>

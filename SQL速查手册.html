@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL 速查手册</title>
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-mid: #378ADD;
+    --blue-bg: #E6F1FB;
+    --blue-bg-soft: #F2F8FD;
+    --page-bg: #F4F8FC;
+    --card-border: rgba(24, 95, 165, 0.14);
+    --text: #1F2937;
+    --text-2: #5B6B7C;
+    --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--page-bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 16px 20px 12px;
+  }
+  .header-inner { max-width: 1100px; margin: 0 auto; }
+  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  h1 { font-size: 20px; font-weight: 600; color: var(--blue); letter-spacing: 0.5px; }
+  .subtitle { font-size: 13px; color: var(--text-2); }
+  .count-badge {
+    font-size: 12px; background: var(--blue-bg); color: var(--blue);
+    padding: 2px 10px; border-radius: 999px; font-weight: 500;
+  }
+
+  .search-wrap { position: relative; margin-bottom: 10px; }
+  .search-wrap svg {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--blue-mid); pointer-events: none;
+  }
+  #search {
+    width: 100%; padding: 11px 16px 11px 40px;
+    border: 1px solid var(--card-border); border-radius: 12px;
+    background: #fff; font-size: 14px; font-family: var(--sans); color: var(--text);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  #search:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.15); }
+  #search::placeholder { color: #9AA8B5; }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--card-border); background: #fff; color: var(--text-2);
+    cursor: pointer; user-select: none; transition: all .15s; font-family: var(--sans);
+  }
+  .chip:hover { border-color: var(--blue-mid); color: var(--blue); }
+  .chip.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 500; }
+  .chip .n { font-size: 11px; opacity: .75; margin-left: 3px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 22px 20px 60px; }
+  .cat-section { margin-bottom: 34px; }
+  .cat-title {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    font-size: 16px; font-weight: 600; color: var(--blue);
+  }
+  .cat-title::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--blue-mid); }
+  .cat-title .hint { font-size: 12px; font-weight: 400; color: var(--text-2); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+  .card {
+    background: #fff; border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 16px 12px; position: relative;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue); }
+  .star {
+    background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
+    color: #C7D3DE; padding: 2px 4px; transition: color .15s, transform .15s;
+  }
+  .star:hover { color: var(--blue-mid); transform: scale(1.15); }
+  .star.faved { color: #F0A92E; }
+  .syntax {
+    font-family: var(--mono); font-size: 12.5px; background: var(--blue-bg-soft);
+    border: 1px solid rgba(24,95,165,.10); color: #0C447C;
+    padding: 7px 10px; border-radius: 8px; margin-bottom: 8px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+  }
+  .desc { font-size: 13.5px; color: var(--text); margin-bottom: 8px; }
+  .desc b { color: #B45309; font-weight: 500; }
+  .ex {
+    font-family: var(--mono); font-size: 12px; color: var(--text-2);
+    background: #F7F9FB; border-radius: 8px; padding: 6px 10px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+  }
+  .ex .lbl { font-family: var(--sans); font-size: 11px; color: #9AA8B5; margin-right: 6px; }
+  .copy-btn {
+    position: absolute; right: 12px; bottom: 10px;
+    font-size: 11px; color: var(--blue); background: var(--blue-bg);
+    border: none; border-radius: 6px; padding: 3px 9px; cursor: pointer;
+    opacity: 0; transition: opacity .15s; font-family: var(--sans);
+  }
+  .card:hover .copy-btn { opacity: 1; }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+
+  .empty { display: none; text-align: center; padding: 60px 20px; color: var(--text-2); }
+  .empty .big { font-size: 40px; margin-bottom: 10px; }
+
+  /* 顺序提示条 */
+  .order-box {
+    background: linear-gradient(135deg, #EAF3FC 0%, #F4F9FE 100%);
+    border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 20px;
+    margin-bottom: 26px;
+  }
+  .order-box h2 { font-size: 15px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+  .order-box p { font-size: 13px; color: var(--text); line-height: 1.8; }
+  .order-box b { color: var(--blue); font-weight: 500; }
+
+  /* 资源链接区 */
+  .res-section { margin-top: 8px; }
+  .res-group-title {
+    font-size: 14px; font-weight: 600; color: var(--blue);
+    margin: 0 0 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .res-group-title .tag {
+    font-size: 11px; font-weight: 400; color: var(--text-2);
+    background: #fff; border: 1px solid var(--card-border);
+    padding: 1px 8px; border-radius: 999px;
+  }
+  .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .res-card {
+    display: block; text-decoration: none;
+    background: #fff; border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 12px 14px; transition: box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .res-card:hover { box-shadow: 0 6px 18px rgba(24,95,165,.10); transform: translateY(-1px); border-color: var(--blue-mid); }
+  .res-name { font-size: 13.5px; font-weight: 600; color: var(--blue); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+  .res-name .arrow { font-size: 12px; color: var(--blue-mid); margin-left: auto; }
+  .res-url { font-family: var(--mono); font-size: 11px; color: #8FA5B8; margin-bottom: 5px; }
+  .res-desc { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+  .res-card.hot { border-color: rgba(24,95,165,.35); background: var(--blue-bg-soft); }
+  .res-card.hot .res-name::before {
+    content: "荐"; font-size: 10px; font-weight: 500; color: #fff;
+    background: var(--blue); border-radius: 4px; padding: 1px 5px;
+  }
+
+  footer {
+    text-align: center; font-size: 12px; color: var(--text-2);
+    padding: 24px 20px 40px; line-height: 2;
+  }
+  footer b { color: var(--blue); font-weight: 500; }
+  footer a { color: var(--blue); text-decoration: none; border-bottom: 1px dashed var(--blue-mid); }
+
+  @media (max-width: 640px) {
+    header { padding: 12px 14px 10px; }
+    main { padding: 16px 14px 50px; }
+    h1 { font-size: 18px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="title-row">
+      <h1>SQL 速查手册</h1>
+      <span class="count-badge" id="totalBadge"></span>
+      <span class="subtitle">面向 Oracle，兼标 MySQL 差异</span>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="搜索语句 / 场景，如：分组、去重、连接、空值、排名…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main style="padding-bottom:0;">
+  <div class="order-box">
+    <h2>新手按这个顺序学，别跳</h2>
+    <p><b>查询基础 → 条件筛选 → 聚合统计 → 多表连接 → 子查询 → 常用函数 → 窗口函数 → 增删改</b>。
+    前四关能应付 80% 的查询需求；窗口函数是数据分析岗的分水岭；增删改最后学，且<b>先在测试表上练</b>，UPDATE 和 DELETE 忘了写 WHERE 就是事故。</p>
+  </div>
+</main>
+
+<main id="main" style="padding-top:0;"></main>
+
+<div class="empty" id="empty">
+  <div class="big">⌕</div>
+  <div>没搜到相关语句，换个关键词试试？</div>
+  <div style="font-size:12px;margin-top:6px;">比如搜「分组」「连接」「日期」「空值」这类场景词</div>
+</div>
+
+<main style="padding-top:0;">
+  <div class="res-section">
+    <p class="res-group-title">手机/浏览器刷题入口<span class="tag">免费</span></p>
+    <div class="res-grid">
+      <a class="res-card hot" href="https://www.nowcoder.com/exam/oj?tab=SQL%E7%AF%87" target="_blank" rel="noopener">
+        <div class="res-name">牛客网 SQL 篇<span class="arrow">→</span></div>
+        <div class="res-url">nowcoder.com</div>
+        <div class="res-desc">中文题库分层最清楚：快速入门 → 必知必会 → 进阶挑战 → 大厂真题。有手机 App，碎片时间刷题主力</div>
+      </a>
+      <a class="res-card hot" href="https://sqlzoo.net" target="_blank" rel="noopener">
+        <div class="res-name">SQLZoo<span class="arrow">→</span></div>
+        <div class="res-url">sqlzoo.net</div>
+        <div class="res-desc">英文但零基础友好：打开网页就写 SQL、立刻出结果，9 个板块近百道题，手机浏览器也能刷</div>
+      </a>
+      <a class="res-card" href="https://leetcode.cn/problemset/database/" target="_blank" rel="noopener">
+        <div class="res-name">力扣数据库题库<span class="arrow">→</span></div>
+        <div class="res-url">leetcode.cn</div>
+        <div class="res-desc">题目质量高、题解区讨论丰富。免费约 105 道（部分要会员），窗口函数进阶在这练</div>
+      </a>
+      <a class="res-card" href="https://sqlbolt.com" target="_blank" rel="noopener">
+        <div class="res-name">SQLBolt<span class="arrow">→</span></div>
+        <div class="res-url">sqlbolt.com</div>
+        <div class="res-desc">18 节免费交互课，左边讲知识点右边立刻做题，适合看不进长视频的人</div>
+      </a>
+      <a class="res-card" href="https://www.sololearn.com" target="_blank" rel="noopener">
+        <div class="res-name">SoloLearn<span class="arrow">→</span></div>
+        <div class="res-url">sololearn.com</div>
+        <div class="res-desc">英文 App，像玩游戏一样闯关学 SQL，每天 10 分钟打卡式，适合培养习惯</div>
+      </a>
+      <a class="res-card" href="https://www.runoob.com/sql/sql-tutorial.html" target="_blank" rel="noopener">
+        <div class="res-name">菜鸟教程 SQL<span class="arrow">→</span></div>
+        <div class="res-url">runoob.com</div>
+        <div class="res-desc">中文语法速查，忘了某个写法搜一下看例子。当字典用，别指望靠它练手感</div>
+      </a>
+    </div>
+
+    <p class="res-group-title">你电脑上的最佳练习场<span class="tag">已装好，别浪费</span></p>
+    <div class="res-grid">
+      <div class="res-card" style="cursor:default;">
+        <div class="res-name">本地 Oracle 19c + PLSQL Developer</div>
+        <div class="res-url">appuser / orcl @ localhost:1521</div>
+        <div class="res-desc">把帮扶资金系统导出的 Excel 导进来建几张表，真实数据比任何题库都练人。先练 SELECT，UPDATE/DELETE 只在测试表上玩</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div><b>使用方法：</b>先按顺序过一遍，之后遇到场景来这里搜，复制语法改改用</div>
+  <div>配套手册：<a href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Excel 函数速查手册</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query 速查手册</a></div>
+</footer>
+
+<script>
+const CATS = [
+  { id: "basic",  name: "查询基础", hint: "SELECT 全家桶，万事开头" },
+  { id: "where",  name: "条件筛选", hint: "只要符合条件的行" },
+  { id: "agg",    name: "聚合统计", hint: "SQL 版数据透视表" },
+  { id: "join",   name: "多表连接", hint: "两张表拼出完整信息" },
+  { id: "sub",    name: "子查询",   hint: "查询套查询，分步解决复杂问题" },
+  { id: "func",   name: "常用函数", hint: "字符串、日期、空值处理" },
+  { id: "window", name: "窗口函数", hint: "Top N、排名、占比，分析岗分水岭" },
+  { id: "dml",    name: "增删改",   hint: "写操作，先在测试表上练" }
+];
+
+const FNS = [
+  // ===== 查询基础 =====
+  { cat:"basic", name:"SELECT", syntax:"SELECT 列1, 列2 FROM 表名",
+    desc:"查询的起点：从哪张表、取哪几列。SELECT * 是全都要，练习随便用，正式环境尽量写明列名。",
+    ex:"SELECT 项目名, 金额 FROM 项目表" },
+  { cat:"basic", name:"WHERE", syntax:"SELECT ... FROM ... WHERE 条件",
+    desc:"只保留满足条件的行。绝大多数查询都靠它缩小范围，先筛行，再谈别的。",
+    ex:"SELECT * FROM 项目表 WHERE 金额 > 100000" },
+  { cat:"basic", name:"ORDER BY", syntax:"ORDER BY 列名 DESC",
+    desc:"排序。默认升序（ASC），加 DESC 变降序，可以写多列：先按第一列排，相同再按第二列。",
+    ex:"ORDER BY 金额 DESC, 下达日期 ASC" },
+  { cat:"basic", name:"取前 N 行", syntax:"Oracle: FETCH FIRST 10 ROWS ONLY ｜ MySQL: LIMIT 10",
+    desc:"只看前几行。<b>方言差异：</b>Oracle 用 FETCH FIRST（或老写法 WHERE ROWNUM <= 10），MySQL 用 LIMIT。",
+    ex:"SELECT * FROM 项目表 ORDER BY 金额 DESC FETCH FIRST 10 ROWS ONLY" },
+  { cat:"basic", name:"DISTINCT", syntax:"SELECT DISTINCT 列名 FROM 表名",
+    desc:"去重，只保留不重复的值。「这批项目涉及多少个乡镇」就是靠它数出来的。",
+    ex:"SELECT DISTINCT 乡镇 FROM 项目表" },
+  { cat:"basic", name:"别名 AS", syntax:"SELECT 列名 AS 中文名 FROM 表名 简称",
+    desc:"给列或表起短名。列别名让报表表头更友好，表别名让长 SQL 更好读。",
+    ex:"SELECT p.项目名, p.金额 AS 项目金额 FROM 项目表 p" },
+
+  // ===== 条件筛选 =====
+  { cat:"where", name:"AND / OR / NOT", syntax:"WHERE 条件1 AND (条件2 OR 条件3)",
+    desc:"多条件组合。<b>坑点：</b>AND 和 OR 混用一定加括号，不加括号优先级会从左算，结果常常不是你想的。",
+    ex:"WHERE 乡镇='青山镇' AND (状态='已完工' OR 状态='在建')" },
+  { cat:"where", name:"IN", syntax:"WHERE 列 IN (值1, 值2, ...)",
+    desc:"「是这几个值里的任意一个」，比写一串 OR 清爽得多，括号里还能塞一个子查询。",
+    ex:"WHERE 乡镇 IN ('青山镇', '白云乡', '石桥镇')" },
+  { cat:"where", name:"BETWEEN", syntax:"WHERE 列 BETWEEN 下限 AND 上限",
+    desc:"范围筛选，<b>包含两端</b>。日期区间、金额区间最常用。",
+    ex:"WHERE 下达日期 BETWEEN DATE '2026-01-01' AND DATE '2026-06-30'" },
+  { cat:"where", name:"LIKE", syntax:"WHERE 列 LIKE '%关键字%'",
+    desc:"模糊匹配：% 代表任意多个字符，_ 代表单个字符。注意：% 开头的写法索引会失效，大表上很慢。",
+    ex:"WHERE 项目名 LIKE '%饮水%'" },
+  { cat:"where", name:"IS NULL", syntax:"WHERE 列 IS NULL ｜ IS NOT NULL",
+    desc:"判断空值。<b>铁律：</b>NULL 不能用 = 判断，必须写 IS NULL，写 = NULL 永远查不到东西。",
+    ex:"WHERE 负责人 IS NULL" },
+
+  // ===== 聚合统计 =====
+  { cat:"agg", name:"COUNT", syntax:"COUNT(*) ｜ COUNT(列) ｜ COUNT(DISTINCT 列)",
+    desc:"数个数。COUNT(*) 数所有行；COUNT(列) 自动跳过空值；加 DISTINCT 去重后再数。",
+    ex:"SELECT COUNT(DISTINCT 乡镇) FROM 项目表" },
+  { cat:"agg", name:"SUM / AVG", syntax:"SUM(数值列) ｜ AVG(数值列)",
+    desc:"求和、求平均。只认数值列，空值自动跳过不参与计算。",
+    ex:"SELECT SUM(金额), AVG(金额) FROM 资金表" },
+  { cat:"agg", name:"MAX / MIN", syntax:"MAX(列) ｜ MIN(列)",
+    desc:"最大、最小值。查「最高一笔资金是多少」「最早的项目日期」用它。",
+    ex:"SELECT MAX(金额), MIN(下达日期) FROM 资金表" },
+  { cat:"agg", name:"GROUP BY", syntax:"SELECT 分类列, SUM(金额) FROM 表 GROUP BY 分类列",
+    desc:"分组汇总，SQL 版的数据透视表。<b>铁律：</b>SELECT 里除了聚合函数，只能出现 GROUP BY 里写过的列。",
+    ex:"SELECT 乡镇, SUM(金额) FROM 项目表 GROUP BY 乡镇" },
+  { cat:"agg", name:"HAVING", syntax:"GROUP BY 分类列 HAVING SUM(金额) > 500000",
+    desc:"对分组后的结果再筛。<b>区别：</b>WHERE 筛明细行（分组前），HAVING 筛分组结果（分组后），顺序不能反。",
+    ex:"SELECT 乡镇, SUM(金额) s FROM 项目表 GROUP BY 乡镇 HAVING SUM(金额) > 500000" },
+
+  // ===== 多表连接 =====
+  { cat:"join", name:"INNER JOIN", syntax:"FROM 表A a JOIN 表B b ON a.编码 = b.编码",
+    desc:"两张表按关联字段拼起来，只保留<b>两边都匹配</b>的行。匹配不上的行直接消失。",
+    ex:"FROM 项目表 p JOIN 资金表 f ON p.项目编码 = f.项目编码" },
+  { cat:"join", name:"LEFT JOIN", syntax:"FROM 表A a LEFT JOIN 表B b ON a.编码 = b.编码",
+    desc:"左表一行不丢，右边配不上就补空。查「哪些项目还没资金下达」就靠 LEFT JOIN + IS NULL 这个经典组合。",
+    ex:"FROM 项目表 p LEFT JOIN 资金表 f ON p.项目编码=f.项目编码 WHERE f.项目编码 IS NULL" },
+  { cat:"join", name:"UNION ALL", syntax:"SELECT ... UNION ALL SELECT ...",
+    desc:"把两个查询结果上下拼成一张。UNION 会自动去重但慢；<b>多数时候你要的是 UNION ALL</b>（不去重、快）。",
+    ex:"SELECT 乡镇, 金额 FROM 表1 UNION ALL SELECT 乡镇, 金额 FROM 表2" },
+  { cat:"join", name:"自连接", syntax:"FROM 表 a JOIN 表 b ON a.上级id = b.id",
+    desc:"同一张表和自己 JOIN，典型场景：员工表查「每个人的直属领导是谁」。给表起两个别名就当两张表用。",
+    ex:"SELECT e.姓名, m.姓名 AS 领导 FROM 员工表 e JOIN 员工表 m ON e.领导id = m.id" },
+
+  // ===== 子查询 =====
+  { cat:"sub", name:"WHERE 子查询", syntax:"WHERE 列 IN (SELECT 列 FROM 另一张表)",
+    desc:"先查出一张小名单，再拿它当条件筛主表。「查重点乡镇的所有项目」一步到位。",
+    ex:"WHERE 乡镇 IN (SELECT 乡镇 FROM 重点乡镇表)" },
+  { cat:"sub", name:"FROM 子查询", syntax:"FROM (SELECT 乡镇, SUM(金额) s FROM 表 GROUP BY 乡镇) t",
+    desc:"把子查询的结果当临时表再加工。复杂报表的常规套路：<b>先汇总，再关联</b>，一层层往上搭。",
+    ex:"SELECT t.乡镇, t.s FROM (SELECT 乡镇, SUM(金额) s FROM 项目表 GROUP BY 乡镇) t WHERE t.s > 100000" },
+  { cat:"sub", name:"EXISTS", syntax:"WHERE EXISTS (SELECT 1 FROM 表B WHERE 关联条件)",
+    desc:"判断「是否存在」就停，不关心查出什么。大表上通常比 IN 快，写关联存在性判断优先考虑它。",
+    ex:"WHERE EXISTS (SELECT 1 FROM 资金表 f WHERE f.项目编码 = p.项目编码)" },
+  { cat:"sub", name:"CASE WHEN", syntax:"CASE WHEN 条件 THEN 值 ELSE 值 END",
+    desc:"SQL 里的 IF。分组打标、区间分段必备，比如把金额自动分成大/中/小三档，还能配合 SUM 做行列转换。",
+    ex:"CASE WHEN 金额 >= 100000 THEN '大额' WHEN 金额 >= 10000 THEN '中额' ELSE '小额' END" },
+
+  // ===== 常用函数 =====
+  { cat:"func", name:"字符串拼接 ||", syntax:"Oracle: 列1 || 列2 ｜ MySQL: CONCAT(列1, 列2)",
+    desc:"把几段文本拼成一段。<b>方言差异：</b>Oracle 用 ||，MySQL 用 CONCAT 函数。",
+    ex:"SELECT 乡镇 || '-' || 项目名 FROM 项目表" },
+  { cat:"func", name:"SUBSTR", syntax:"SUBSTR(字符串, 起始位, 长度)",
+    desc:"截取字符串。<b>注意：</b>起始位从 1 开始数，不是 0。拆身份证、编码分段必备。",
+    ex:"SUBSTR(身份证号, 7, 8)  取出生日期" },
+  { cat:"func", name:"LENGTH / INSTR", syntax:"LENGTH(字符串) ｜ INSTR(字符串, '要找的字')",
+    desc:"LENGTH 数长度（查位数不对的脏数据），INSTR 返回某个字第一次出现的位置。",
+    ex:"SELECT * FROM 项目表 WHERE LENGTH(编码) <> 12" },
+  { cat:"func", name:"TRIM / REPLACE", syntax:"TRIM(列) ｜ REPLACE(列, '旧', '新')",
+    desc:"TRIM 去首尾空格（匹配不上先查空格），REPLACE 批量替换内容，清洗数据两大主力。",
+    ex:"UPDATE 项目表 SET 乡镇 = TRIM(乡镇)" },
+  { cat:"func", name:"NVL", syntax:"Oracle: NVL(列, 空时显示的值) ｜ MySQL: IFNULL(列, 值)",
+    desc:"空值处理神器：是空就换成指定值。<b>方言差异：</b>Oracle 用 NVL，MySQL 用 IFNULL，想通用就写 COALESCE。",
+    ex:"NVL(负责人, '未指派')" },
+  { cat:"func", name:"COALESCE", syntax:"COALESCE(值1, 值2, 值3, ...)",
+    desc:"从左往右返回第一个非空的值，标准 SQL 写法，Oracle 和 MySQL 都认，跨库迁移不用改。",
+    ex:"COALESCE(手机号, 座机号, '无联系方式')" },
+  { cat:"func", name:"TO_CHAR", syntax:"TO_CHAR(日期, 'YYYY-MM-DD')",
+    desc:"Oracle 专用：日期/数字转指定格式文本。按月汇总前先 TO_CHAR 出 'YYYY-MM' 再 GROUP BY。",
+    ex:"TO_CHAR(下达日期, 'YYYY-MM')  得到 2026-09" },
+  { cat:"func", name:"TO_DATE", syntax:"TO_DATE('2026-01-01', 'YYYY-MM-DD')",
+    desc:"Oracle 专用：文本转日期。导入的 Excel 日期常常是文本，比较大小前必须先转。",
+    ex:"WHERE 下达日期 >= TO_DATE('2026-01-01','YYYY-MM-DD')" },
+  { cat:"func", name:"SYSDATE / TRUNC", syntax:"SYSDATE ｜ TRUNC(日期) ｜ TRUNC(日期, 'MM')",
+    desc:"SYSDATE 是当前时间；TRUNC 砍掉时分秒只留日期；TRUNC(日期,'MM') 得到当月 1 号。",
+    ex:"SYSDATE - 下达日期  已过去多少天" },
+  { cat:"func", name:"ADD_MONTHS", syntax:"ADD_MONTHS(日期, 月数)",
+    desc:"Oracle 专用：日期加 n 个月（负数就是减）。「资金下达 6 个月后的期限日」一键算。",
+    ex:"ADD_MONTHS(下达日期, 6)" },
+  { cat:"func", name:"ROUND / MOD", syntax:"ROUND(数值, 位数) ｜ MOD(被除数, 除数)",
+    desc:"ROUND 四舍五入指定位数，MOD 取余数。金额单位换算、分批分组常用。",
+    ex:"ROUND(金额 / 10000, 2)  转成万元留两位" },
+
+  // ===== 窗口函数 =====
+  { cat:"window", name:"ROW_NUMBER", syntax:"ROW_NUMBER() OVER (PARTITION BY 分组列 ORDER BY 排序列)",
+    desc:"给每组内的行编 1、2、3… 序号。<b>Top N 问题的标准解：</b>套一层 WHERE 序号 = 1，就拿到「每个乡镇金额最高的项目」。",
+    ex:"ROW_NUMBER() OVER (PARTITION BY 乡镇 ORDER BY 金额 DESC)" },
+  { cat:"window", name:"RANK / DENSE_RANK", syntax:"RANK() OVER (ORDER BY 金额 DESC)",
+    desc:"排名，允许并列。RANK 并列后跳号（1,2,2,4），DENSE_RANK 并列后不跳号（1,2,2,3）。",
+    ex:"RANK() OVER (ORDER BY 金额 DESC)" },
+  { cat:"window", name:"SUM() OVER", syntax:"SUM(金额) OVER (PARTITION BY 乡镇)",
+    desc:"不分组也能算组内合计：每一行都带上它所在乡镇的总额。<b>算占比神器</b>，明细和汇总同框。",
+    ex:"ROUND(金额 / SUM(金额) OVER (PARTITION BY 乡镇) * 100, 1)  占本乡镇百分比" },
+  { cat:"window", name:"LAG / LEAD", syntax:"LAG(列) OVER (ORDER BY 日期)",
+    desc:"取上一行 / 下一行的值放到当前行，做环比、同比不用费劲自连接。",
+    ex:"金额 - LAG(金额) OVER (ORDER BY 月份)  比上月多多少" },
+
+  // ===== 增删改 =====
+  { cat:"dml", name:"INSERT INTO", syntax:"INSERT INTO 表 (列1, 列2) VALUES (值1, 值2)",
+    desc:"插入新行。列名和值要一一对应，文本值用单引号包起来。",
+    ex:"INSERT INTO 项目表 (编码, 项目名) VALUES ('XM099', '安全饮水工程')" },
+  { cat:"dml", name:"UPDATE", syntax:"UPDATE 表 SET 列 = 新值 WHERE 条件",
+    desc:"修改已有数据。<b>事故重灾区：</b>先写 WHERE 再执行，忘了 WHERE 就是全表更新。好习惯是先 SELECT 同条件确认影响行数。",
+    ex:"UPDATE 项目表 SET 状态 = '已完工' WHERE 编码 = 'XM099'" },
+  { cat:"dml", name:"DELETE", syntax:"DELETE FROM 表 WHERE 条件",
+    desc:"删除行，同样<b>必须带 WHERE</b>。DELETE 可以 ROLLBACK 回滚；TRUNCATE 清空全表不能回滚，新手别碰。",
+    ex:"DELETE FROM 测试表 WHERE 编码 = 'XM099'" },
+  { cat:"dml", name:"MERGE INTO", syntax:"MERGE INTO 目标表 USING 来源表 ON (关联) WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...",
+    desc:"Oracle 特色：「有则更新、无则插入」一条语句搞定，做数据同步、批量导数时比手写 UPDATE + INSERT 省事。",
+    ex:"MERGE INTO 项目表 t USING 导入表 s ON (t.编码 = s.编码) WHEN MATCHED THEN UPDATE SET t.金额 = s.金额 WHEN NOT MATCHED THEN INSERT VALUES (s.编码, s.金额)" }
+];
+
+// ===== 渲染 =====
+const main = document.getElementById("main");
+const chipsEl = document.getElementById("chips");
+const emptyEl = document.getElementById("empty");
+const totalBadge = document.getElementById("totalBadge");
+const FAV_KEY = "sql-handbook-favs";
+let favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+let activeChip = "all";
+let keyword = "";
+
+function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function buildChips() {
+  const all = [{ id:"all", name:"全部" }, ...CATS, { id:"fav", name:"★ 已收藏" }];
+  chipsEl.innerHTML = all.map(c => {
+    const n = c.id === "all" ? FNS.length
+      : c.id === "fav" ? favs.size
+      : FNS.filter(f => f.cat === c.id).length;
+    return `<button class="chip${activeChip===c.id?" active":""}" data-id="${c.id}">${c.name}<span class="n">${n}</span></button>`;
+  }).join("");
+}
+
+function match(f) {
+  if (activeChip === "fav" && !favs.has(f.name)) return false;
+  if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
+  if (keyword) {
+    const hay = (f.name + " " + f.syntax + " " + f.desc + " " + f.ex).toLowerCase();
+    if (!hay.includes(keyword)) return false;
+  }
+  return true;
+}
+
+function render() {
+  buildChips();
+  totalBadge.textContent = "共 " + FNS.length + " 条语句";
+  let html = "";
+  CATS.forEach(c => {
+    const list = FNS.filter(f => f.cat === c.id && match(f));
+    if (!list.length) return;
+    html += `<section class="cat-section">
+      <div class="cat-title">${c.name}<span class="hint">${c.hint}</span></div>
+      <div class="grid">${list.map(cardHTML).join("")}</div>
+    </section>`;
+  });
+  main.innerHTML = html;
+  emptyEl.style.display = html ? "none" : "block";
+}
+
+function cardHTML(f) {
+  const faved = favs.has(f.name);
+  return `<div class="card" data-name="${esc(f.name)}">
+    <div class="card-head">
+      <span class="fname">${esc(f.name)}</span>
+      <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
+    </div>
+    <div class="syntax">${esc(f.syntax)}</div>
+    <div class="desc">${f.desc}</div>
+    <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>
+    <button class="copy-btn">复制语法</button>
+  </div>`;
+}
+
+chipsEl.addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  activeChip = chip.dataset.id;
+  render();
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  keyword = e.target.value.trim().toLowerCase();
+  render();
+});
+
+main.addEventListener("click", e => {
+  const star = e.target.closest(".star");
+  const copyBtn = e.target.closest(".copy-btn");
+  if (star) {
+    const name = star.closest(".card").dataset.name;
+    favs.has(name) ? favs.delete(name) : favs.add(name);
+    saveFavs();
+    render();
+    return;
+  }
+  if (copyBtn) {
+    const syntax = copyBtn.closest(".card").querySelector(".syntax").textContent;
+    navigator.clipboard.writeText(syntax).then(() => {
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制语法", 1200);
+    }).catch(() => {
+      const ta = document.createElement("textarea");
+      ta.value = syntax; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制语法", 1200);
+    });
+  }
+});
+
+render();
+</script>
+</body>
+</html>
