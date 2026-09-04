@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  if(!/[\?&]_=/.test(location.search)){
+    var sep = location.search ? location.search + '&' : '?';
+    location.replace(location.pathname + sep + '_=' + Date.now());
+  }
+</script>
 <title>SQL 速查手册</title>
 <style>
   :root {
