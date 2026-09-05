@@ -83,6 +83,28 @@
     text-align: center; font-size: 12px; color: var(--text-2);
     padding: 18px 20px 28px;
   }
+
+  @media (max-width: 640px) {
+    html { -webkit-text-size-adjust: 100%; }
+    header { padding: 20px 16px 18px; }
+    h1 { font-size: 20px; letter-spacing: .5px; }
+    .subtitle { font-size: 12px; line-height: 1.6; }
+    main { padding: 18px 14px 32px; }
+    .book { padding: 16px; margin-bottom: 12px; border-radius: 14px; }
+    .book-top { align-items: flex-start; gap: 10px; }
+    .book-name { min-width: 0; font-size: 16px; line-height: 1.4; }
+    .book-icon { width: 30px; height: 30px; flex: 0 0 auto; }
+    .open-tag { margin-top: 2px; padding: 3px 8px; }
+    .book-desc { font-size: 13px; line-height: 1.65; }
+    .tip { padding: 12px 14px; font-size: 12px; line-height: 1.7; }
+    footer { padding: 14px 16px 24px; }
+  }
+
+  @media (max-width: 360px) {
+    .book { padding: 14px; }
+    .book-name { font-size: 15px; }
+    .open-tag { font-size: 11px; }
+  }
 </style>
 </head>
 <body>
