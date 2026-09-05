@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  if(!/[\?&]_=/.test(location.search)){
+    var sep = location.search ? location.search + '&' : '?';
+    location.replace(location.pathname + sep + '_=' + Date.now());
+  }
+</script>
+<title>快捷键速查手册</title>
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-mid: #378ADD;
+    --blue-bg: #E6F1FB;
+    --blue-bg-soft: #F2F8FD;
+    --page-bg: #F4F8FC;
+    --card-border: rgba(24, 95, 165, 0.14);
+    --text: #1F2937;
+    --text-2: #5B6B7C;
+    --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--page-bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ===== 顶部毛玻璃 ===== */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 16px 20px 12px;
+  }
+  .header-inner { max-width: 1100px; margin: 0 auto; }
+  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  h1 { font-size: 20px; font-weight: 600; color: var(--blue); letter-spacing: 0.5px; }
+  .subtitle { font-size: 13px; color: var(--text-2); }
+  .count-badge {
+    font-size: 12px; background: var(--blue-bg); color: var(--blue);
+    padding: 2px 10px; border-radius: 999px; font-weight: 500;
+  }
+
+  /* 搜索框 */
+  .search-wrap { position: relative; margin-bottom: 10px; }
+  .search-wrap svg {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--blue-mid); pointer-events: none;
+  }
+  #search {
+    width: 100%; padding: 11px 16px 11px 40px;
+    border: 1px solid var(--card-border); border-radius: 12px;
+    background: #fff; font-size: 14px; font-family: var(--sans); color: var(--text);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  #search:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.15); }
+  #search::placeholder { color: #9AA8B5; }
+
+  /* 分类 chips */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--card-border); background: #fff; color: var(--text-2);
+    cursor: pointer; user-select: none; transition: all .15s; font-family: var(--sans);
+  }
+  .chip:hover { border-color: var(--blue-mid); color: var(--blue); }
+  .chip.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 500; }
+  .chip .n { font-size: 11px; opacity: .75; margin-left: 3px; }
+
+  /* ===== 主体 ===== */
+  main { max-width: 1100px; margin: 0 auto; padding: 22px 20px 60px; }
+  .cat-section { margin-bottom: 34px; }
+  .cat-title {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    font-size: 16px; font-weight: 600; color: var(--blue);
+  }
+  .cat-title::before { content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--blue-mid); }
+  .cat-title .hint { font-size: 12px; font-weight: 400; color: var(--text-2); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+  /* 快捷键卡片 */
+  .card {
+    background: #fff; border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 16px 12px; position: relative;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .fname { font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--blue); }
+  .star {
+    background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
+    color: #C7D3DE; padding: 2px 4px; transition: color .15s, transform .15s;
+  }
+  .star:hover { color: var(--blue-mid); transform: scale(1.15); }
+  .star.faved { color: #F0A92E; }
+  .keys {
+    font-family: var(--mono); font-size: 13px; background: var(--blue-bg-soft);
+    border: 1px solid rgba(24,95,165,.10); color: #0C447C;
+    padding: 8px 10px; border-radius: 8px; margin-bottom: 8px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+    display: flex; align-items: center; flex-wrap: nowrap;
+  }
+  .keys kbd {
+    font-family: var(--mono); font-size: 12px; background: #fff;
+    border: 1px solid var(--card-border); border-bottom-width: 2px;
+    border-radius: 6px; padding: 2px 7px; color: var(--blue); white-space: nowrap;
+  }
+  .keys .plus { color: var(--blue-mid); margin: 0 4px; font-weight: 600; flex: 0 0 auto; }
+  .desc { font-size: 13.5px; color: var(--text); margin-bottom: 8px; }
+  .copy-btn {
+    position: absolute; right: 12px; bottom: 10px;
+    font-size: 11px; color: var(--blue); background: var(--blue-bg);
+    border: none; border-radius: 6px; padding: 3px 9px; cursor: pointer;
+    opacity: 0; transition: opacity .15s; font-family: var(--sans);
+  }
+  .card:hover .copy-btn { opacity: 1; }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+
+  /* 空结果 */
+  .empty {
+    display: none; text-align: center; padding: 60px 20px; color: var(--text-2);
+  }
+  .empty .big { font-size: 40px; margin-bottom: 10px; }
+
+  /* 高频必记区 */
+  .shortcut-box {
+    background: linear-gradient(135deg, #EAF3FC 0%, #F4F9FE 100%);
+    border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 20px;
+  }
+  .shortcut-box h2 { font-size: 16px; font-weight: 600; color: var(--blue); margin-bottom: 12px; }
+  .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 20px; }
+  .sc-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); }
+  .sc-item kbd {
+    font-family: var(--mono); font-size: 11.5px; background: #fff;
+    border: 1px solid var(--card-border); border-bottom-width: 2px;
+    border-radius: 6px; padding: 2px 7px; color: var(--blue); white-space: nowrap;
+  }
+  .sc-item .plus { color: var(--blue-mid); margin: 0 2px; font-weight: 600; }
+
+  footer {
+    text-align: center; font-size: 12px; color: var(--text-2);
+    padding: 24px 20px 40px; line-height: 2;
+  }
+  footer b { color: var(--blue); font-weight: 500; }
+  footer a { color: var(--blue); text-decoration: none; border-bottom: 1px dashed var(--blue-mid); }
+
+  @media (max-width: 640px) {
+    header { padding: 10px 14px 8px; }
+    main { padding: 16px 14px 50px; }
+    h1 { font-size: 18px; }
+    .grid { grid-template-columns: 1fr; }
+    .title-row { gap: 4px; margin-bottom: 8px; }
+    .subtitle { font-size: 12px; }
+    #search { font-size: 16px; padding: 10px 12px 10px 38px; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+    .card { padding: 14px 14px 16px; }
+    .card h3 { font-size: 15px; }
+    .desc { font-size: 13.5px; }
+    .keys { font-size: 12px; }
+    footer { padding: 22px 16px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="title-row">
+      <h1>快捷键速查手册</h1>
+      <span class="count-badge" id="totalBadge"></span>
+      <span class="subtitle">系统 · 文件 · 文本 · Excel · Word · PPT · 浏览器</span>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="搜索快捷键，如：求和、截图、刷新、居中、复制、放映…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div class="empty" id="empty">
+  <div class="big">⌕</div>
+  <div>没搜到相关快捷键，换个关键词试试？</div>
+  <div style="font-size:12px;margin-top:6px;">比如搜「求和」「居中」「截图」「刷新」「放映」「复制」这类动作词</div>
+</div>
+
+<main style="padding-top:0;">
+  <div class="shortcut-box">
+    <h2>先记这 8 个万能键，效率直接起飞</h2>
+    <div class="sc-grid">
+      <div class="sc-item"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>C</kbd>复制</div>
+      <div class="sc-item"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>V</kbd>粘贴</div>
+      <div class="sc-item"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Z</kbd>撤销</div>
+      <div class="sc-item"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>A</kbd>全选</div>
+      <div class="sc-item"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F</kbd>查找</div>
+      <div class="sc-item"><kbd>Win</kbd><span class="plus">+</span><kbd>D</kbd>显示桌面</div>
+      <div class="sc-item"><kbd>Alt</kbd><span class="plus">+</span><kbd>Tab</kbd>切换窗口</div>
+      <div class="sc-item"><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>S</kbd>截图</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div><b>使用方法：</b>遇到重复性操作，先来这里搜一下有没有对应快捷键，养成肌肉记忆</div>
+  <div>配套手册：<a href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Excel 函数速查手册</a> · <a href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">SQL 速查手册</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query 速查手册</a></div>
+</footer>
+
+<script>
+const CATS = [
+  { id: "daily",   name: "系统 / 日常",   hint: "Windows 系统通用 + 窗口管理，笔记本必记" },
+  { id: "file",    name: "文件管理",     hint: "资源管理器里的高效操作" },
+  { id: "text",    name: "文本编辑通用", hint: "记事本 / 微信 / Office 输入框通用" },
+  { id: "excel",   name: "Excel",        hint: "表格操作 + 公式效率键" },
+  { id: "word",    name: "Word",         hint: "排版、样式、格式快捷键" },
+  { id: "ppt",     name: "PPT",          hint: "放映与对象编辑" },
+  { id: "browser", name: "浏览器",       hint: "Chrome / Edge 通用" }
+];
+const CATNAME = {}; CATS.forEach(c => CATNAME[c.id] = c.name);
+
+const SC = [
+  // ===== 系统 / 日常 =====
+  { cat:"daily", key:"Win + D", name:"显示桌面", desc:"一键最小化所有窗口，再按一次恢复原状。" },
+  { cat:"daily", key:"Win + E", name:"打开资源管理器", desc:"直接打开“此电脑 / 文件资源管理器”。" },
+  { cat:"daily", key:"Win + L", name:"锁屏", desc:"离开座位一键锁屏，保护隐私。" },
+  { cat:"daily", key:"Win + R", name:"运行", desc:"打开“运行”对话框，老手常用（cmd、mstsc 等）。" },
+  { cat:"daily", key:"Win + V", name:"剪贴板历史", desc:"粘贴之前复制过的内容，需在设置里开启。" },
+  { cat:"daily", key:"Win + S", name:"搜索", desc:"打开全局搜索，找应用 / 文件 / 设置。" },
+  { cat:"daily", key:"Win + I", name:"设置", desc:"直接打开 Windows 设置。" },
+  { cat:"daily", key:"Win + .", name:"表情 / 符号面板", desc:"插入 emoji、特殊符号、GIF。" },
+  { cat:"daily", key:"Win + 1", name:"启动任务栏程序", desc:"按任务栏顺序打开对应程序（1–9）。" },
+  { cat:"daily", key:"Win + ←", name:"窗口贴左半屏", desc:"当前窗口吸附到屏幕左半边。" },
+  { cat:"daily", key:"Win + →", name:"窗口贴右半屏", desc:"当前窗口吸附到屏幕右半边。" },
+  { cat:"daily", key:"Win + ↑", name:"最大化窗口", desc:"窗口最大化；半屏状态下变回全屏。" },
+  { cat:"daily", key:"Win + ↓", name:"最小化 / 还原", desc:"最大化时还原，普通窗口时最小化。" },
+  { cat:"daily", key:"Win + Shift + S", name:"区域截图", desc:"矩形 / 任意形状截图，自动进剪贴板。" },
+  { cat:"daily", key:"Win + PrtSc", name:"全屏截图保存", desc:"截图自动存到“图片 / 屏幕截图”。" },
+  { cat:"daily", key:"PrtSc", name:"全屏截图到剪贴板", desc:"整屏截图，可直接粘贴到微信 / Word。" },
+  { cat:"daily", key:"Alt + Tab", name:"切换窗口", desc:"在已打开的窗口间快速切换。" },
+  { cat:"daily", key:"Win + Tab", name:"任务视图", desc:"查看所有窗口 + 虚拟桌面。" },
+  { cat:"daily", key:"Ctrl + Shift + Esc", name:"任务管理器", desc:"直接打开，卡顿查进程、结束程序用。" },
+  { cat:"daily", key:"Win + P", name:"投影 / 多屏", desc:"切换扩展屏、复制屏、仅第二屏。" },
+  { cat:"daily", key:"Win + X", name:"高级用户菜单", desc:"电源、设备管理器、终端、磁盘管理。" },
+  { cat:"daily", key:"Alt + F4", name:"关闭窗口", desc:"关闭当前窗口 / 程序；在桌面则弹出关机菜单。" },
+  { cat:"daily", key:"Ctrl + C", name:"复制", desc:"通用复制，几乎所有软件适用。" },
+  { cat:"daily", key:"Ctrl + X", name:"剪切", desc:"通用剪切，移动内容用。" },
+  { cat:"daily", key:"Ctrl + V", name:"粘贴", desc:"通用粘贴。" },
+  { cat:"daily", key:"Ctrl + Z", name:"撤销", desc:"撤销上一步操作。" },
+  { cat:"daily", key:"Ctrl + Y", name:"重做", desc:"恢复被撤销的操作。" },
+  { cat:"daily", key:"Ctrl + A", name:"全选", desc:"选中当前界面所有内容。" },
+  { cat:"daily", key:"Ctrl + F", name:"查找", desc:"在当前页面 / 文档里查找内容。" },
+
+  // ===== 文件管理 =====
+  { cat:"file", key:"F2", name:"重命名", desc:"重命名选中的文件 / 文件夹。" },
+  { cat:"file", key:"Ctrl + Shift + N", name:"新建文件夹", desc:"在当前目录快速建文件夹。" },
+  { cat:"file", key:"Delete", name:"删除到回收站", desc:"删除选中文件（可恢复）。" },
+  { cat:"file", key:"Shift + Delete", name:"永久删除", desc:"直接删除不进回收站，慎用。" },
+  { cat:"file", key:"Alt + Enter", name:"查看属性", desc:"打开选中文件的属性窗口。" },
+  { cat:"file", key:"F5", name:"刷新", desc:"刷新文件夹 / 当前页面。" },
+  { cat:"file", key:"Alt + ↑", name:"返回上一级", desc:"回到上一级目录。" },
+  { cat:"file", key:"Ctrl + 滚轮", name:"缩放图标", desc:"在资源管理器里放大 / 缩小图标。" },
+  { cat:"file", key:"Ctrl + A", name:"全选文件", desc:"选中文件夹里所有文件。" },
+  { cat:"file", key:"Ctrl + C", name:"复制文件", desc:"复制选中文件，配合 Ctrl + V 粘贴。" },
+
+  // ===== 文本编辑通用 =====
+  { cat:"text", key:"Ctrl + ←", name:"按词左跳", desc:"光标向左跳一个词（→ 向右）。" },
+  { cat:"text", key:"Ctrl + ↑", name:"按段跳转", desc:"光标向上跳一段（↓ 向下）。" },
+  { cat:"text", key:"Ctrl + Shift + ←", name:"按词左选", desc:"向左按词扩展选择（→ 向右）。" },
+  { cat:"text", key:"Ctrl + Backspace", name:"删左边一词", desc:"删除光标左边一个词（比退格快）。" },
+  { cat:"text", key:"Ctrl + Delete", name:"删右边一词", desc:"删除光标右边一个词。" },
+  { cat:"text", key:"Home", name:"行首", desc:"光标跳到本行开头（End 到行尾）。" },
+  { cat:"text", key:"Ctrl + Home", name:"文档开头", desc:"跳到整篇文档最前（Ctrl + End 到最后）。" },
+  { cat:"text", key:"Shift + 方向键", name:"扩展选择", desc:"按住 Shift 再按方向键，逐字加选。" },
+  { cat:"text", key:"Ctrl + H", name:"替换", desc:"打开替换窗口，批量改字。" },
+  { cat:"text", key:"F3", name:"查找下一个", desc:"继续查找下一个匹配（Shift + F3 上一个）。" },
+  { cat:"text", key:"Ctrl + G", name:"定位", desc:"跳到指定行号 / 位置（Word 里是“定位”）。" },
+
+  // ===== Excel =====
+  { cat:"excel", key:"Ctrl + 方向键", name:"跳到数据边缘", desc:"光标瞬间跳到当前区域的最后一行 / 列。" },
+  { cat:"excel", key:"Ctrl + Shift + 方向键", name:"选中到边缘", desc:"从光标选中到数据区域边缘。" },
+  { cat:"excel", key:"Ctrl + 空格", name:"选中整列", desc:"选中光标所在的整列（Shift + 空格选整行）。" },
+  { cat:"excel", key:"Ctrl + A", name:"选中数据区域", desc:"选中连续数据区，再按一次选整张表。" },
+  { cat:"excel", key:"Ctrl + D", name:"向下填充", desc:"把上方单元格内容/公式复制到下方选中区。" },
+  { cat:"excel", key:"Ctrl + R", name:"向右填充", desc:"把左侧内容/公式复制到右侧选中区。" },
+  { cat:"excel", key:"Ctrl + ;", name:"输入当天日期", desc:"在当前单元格填入系统日期（静态值）。" },
+  { cat:"excel", key:"Ctrl + Shift + ;", name:"输入当前时间", desc:"填入当前时间。" },
+  { cat:"excel", key:"Ctrl + 1", name:"设置单元格格式", desc:"打开“设置单元格格式”对话框。" },
+  { cat:"excel", key:"F2", name:"编辑单元格", desc:"进入编辑状态，光标落在单元格末尾。" },
+  { cat:"excel", key:"F4", name:"重复 / 锁定引用", desc:"重复上一步操作；编辑公式时切换 $A$1 引用。" },
+  { cat:"excel", key:"Alt + =", name:"自动求和", desc:"对上方或左侧数据一键插入 SUM。" },
+  { cat:"excel", key:"Ctrl + T", name:"创建表格", desc:"把区域转成超级表，自带筛选与样式。" },
+  { cat:"excel", key:"Ctrl + Shift + L", name:"开关筛选", desc:"为表头添加 / 取消筛选下拉。" },
+  { cat:"excel", key:"Ctrl + Enter", name:"多格同输", desc:"在多个选中单元格同时输入同一内容。" },
+  { cat:"excel", key:"Ctrl + 9", name:"隐藏行", desc:"隐藏选中行（Ctrl + Shift + 9 取消隐藏）。" },
+  { cat:"excel", key:"Ctrl + 0", name:"隐藏列", desc:"隐藏选中列（Ctrl + Shift + 0 取消隐藏）。" },
+  { cat:"excel", key:"Alt + Enter", name:"单元格内换行", desc:"在单元格里手动换行。" },
+  { cat:"excel", key:"Ctrl + PageDown", name:"下一工作表", desc:"切换到右侧工作表（PageUp 向左）。" },
+  { cat:"excel", key:"Shift + F11", name:"新建工作表", desc:"快速插入一张新工作表。" },
+  { cat:"excel", key:"F11", name:"创建图表", desc:"用当前数据一键生成图表工作表。" },
+  { cat:"excel", key:"Ctrl + K", name:"插入超链接", desc:"为单元格添加超链接。" },
+  { cat:"excel", key:"Ctrl + `", name:"显示公式", desc:"切换显示公式本身还是计算结果。" },
+  { cat:"excel", key:"Ctrl + -", name:"删除单元格", desc:"删除选中单元格 / 行 / 列（弹窗选择）。" },
+  { cat:"excel", key:"Ctrl + Shift + 加号", name:"插入单元格", desc:"插入单元格 / 行 / 列（也可右键插入）。" },
+  { cat:"excel", key:"Alt + ↓", name:"打开筛选列表", desc:"在已筛选列里快速展开下拉选项。" },
+
+  // ===== Word =====
+  { cat:"word", key:"Ctrl + B", name:"加粗", desc:"对选中文字加粗（Ctrl + I 斜体、Ctrl + U 下划线）。" },
+  { cat:"word", key:"Ctrl + ]", name:"增大字号", desc:"逐档放大选中文字（[ 缩小）。" },
+  { cat:"word", key:"Ctrl + Shift + >", name:"增大字号", desc:"另一种放大字号方式（< 缩小）。" },
+  { cat:"word", key:"Ctrl + 1", name:"单倍行距", desc:"设置单倍行距（Ctrl + 2 双倍、Ctrl + 5 为 1.5 倍）。" },
+  { cat:"word", key:"Ctrl + E", name:"居中对齐", desc:"段落居中（L 左对齐、R 右对齐、J 两端对齐）。" },
+  { cat:"word", key:"Ctrl + M", name:"增加缩进", desc:"段落向右缩进（Ctrl + Shift + M 减少缩进）。" },
+  { cat:"word", key:"Ctrl + 0", name:"段前间距", desc:"添加 / 取消段前间距。" },
+  { cat:"word", key:"Ctrl + Enter", name:"分页符", desc:"强制从新的一页开始。" },
+  { cat:"word", key:"Ctrl + D", name:"字体对话框", desc:"打开“字体”设置窗口。" },
+  { cat:"word", key:"Ctrl + Shift + C", name:"复制格式", desc:"格式刷快捷键：复制格式后用 Ctrl + Shift + V 粘贴。" },
+  { cat:"word", key:"Shift + F3", name:"切换大小写", desc:"选中英文在 全大写 / 全小写 / 首字母大写 间切换。" },
+  { cat:"word", key:"Alt + Shift + D", name:"插入日期", desc:"插入可更新的当前日期（T 为时间）。" },
+  { cat:"word", key:"F4", name:"重复操作", desc:"重复上一步（比如重复粘贴、重复加粗）。" },
+  { cat:"word", key:"Ctrl + K", name:"插入超链接", desc:"为选中文字添加超链接。" },
+  { cat:"word", key:"F7", name:"拼写检查", desc:"打开拼写和语法检查。" },
+  { cat:"word", key:"Ctrl + Shift + *", name:"显示编辑标记", desc:"切换显示段落符、空格等标记。" },
+  { cat:"word", key:"Ctrl + Alt + 1", name:"标题 1 样式", desc:"应用“标题 1”样式（2 / 3 对应标题 2 / 3）。" },
+  { cat:"word", key:"Ctrl + S", name:"保存", desc:"保存当前文档，养成随手保存习惯。" },
+  { cat:"word", key:"Ctrl + P", name:"打印", desc:"打开打印预览 / 打印。" },
+
+  // ===== PPT =====
+  { cat:"ppt", key:"F5", name:"从头放映", desc:"从第一张幻灯片开始放映。" },
+  { cat:"ppt", key:"Shift + F5", name:"从当前放映", desc:"从当前幻灯片开始放映。" },
+  { cat:"ppt", key:"Esc", name:"退出放映", desc:"退出幻灯片放映模式。" },
+  { cat:"ppt", key:"Ctrl + M", name:"新建幻灯片", desc:"快速插入一张新幻灯片。" },
+  { cat:"ppt", key:"Ctrl + D", name:"复制幻灯片", desc:"复制选中幻灯片 / 对象。" },
+  { cat:"ppt", key:"Ctrl + 拖动", name:"复制对象", desc:"按住 Ctrl 拖动，复制一个对象副本。" },
+  { cat:"ppt", key:"B", name:"黑屏（放映中）", desc:"放映时按 B 黑屏、W 白屏，再按恢复。" },
+  { cat:"ppt", key:"Ctrl + E", name:"水平居中", desc:"让选中对象水平居中对齐。" },
+  { cat:"ppt", key:"Tab", name:"大纲降级", desc:"大纲视图里降低层级（Shift + Tab 升级）。" },
+  { cat:"ppt", key:"Alt + Shift + ↑", name:"上移幻灯片", desc:"调整幻灯片顺序（↓ 下移）。" },
+  { cat:"ppt", key:"Ctrl + K", name:"插入超链接", desc:"为文字或对象添加超链接。" },
+  { cat:"ppt", key:"Ctrl + S", name:"保存", desc:"保存演示文稿。" },
+
+  // ===== 浏览器 =====
+  { cat:"browser", key:"Ctrl + T", name:"新标签页", desc:"打开一个新标签页。" },
+  { cat:"browser", key:"Ctrl + N", name:"新窗口", desc:"打开一个新浏览器窗口。" },
+  { cat:"browser", key:"Ctrl + Shift + N", name:"隐身窗口", desc:"打开无痕 / 隐身浏览窗口。" },
+  { cat:"browser", key:"Ctrl + W", name:"关闭标签页", desc:"关闭当前标签页。" },
+  { cat:"browser", key:"Ctrl + Shift + T", name:"恢复标签页", desc:"重新打开刚关闭的标签页。" },
+  { cat:"browser", key:"Ctrl + Tab", name:"下一个标签", desc:"切换到右边标签页（Ctrl + Shift + Tab 向左）。" },
+  { cat:"browser", key:"Ctrl + 1", name:"跳到第 N 个标签", desc:"跳到对应序号的标签页（1–9，9 为最后一个）。" },
+  { cat:"browser", key:"Ctrl + L", name:"选中地址栏", desc:"光标定位到地址栏（Alt + D 同效）。" },
+  { cat:"browser", key:"Ctrl + F", name:"页面内查找", desc:"在当前网页里查找文字。" },
+  { cat:"browser", key:"F5", name:"刷新", desc:"刷新当前页面（Ctrl + R 同效）。" },
+  { cat:"browser", key:"Ctrl + F5", name:"强制刷新", desc:"忽略缓存强制重新加载。" },
+  { cat:"browser", key:"Ctrl + D", name:"收藏", desc:"把当前网页加入书签 / 收藏。" },
+  { cat:"browser", key:"Ctrl + H", name:"历史", desc:"打开浏览历史记录。" },
+  { cat:"browser", key:"Ctrl + J", name:"下载", desc:"打开下载列表。" },
+  { cat:"browser", key:"Ctrl + 加号", name:"放大", desc:"放大页面（Ctrl + - 缩小，Ctrl + 0 重置）。" },
+  { cat:"browser", key:"Ctrl + Shift + Delete", name:"清除浏览数据", desc:"打开“清除浏览记录 / 缓存”窗口。" },
+  { cat:"browser", key:"Space", name:"下翻一屏", desc:"向下滚动一屏（Shift + Space 向上）。" },
+  { cat:"browser", key:"Alt + ←", name:"后退", desc:"返回上一个页面（→ 前进）。" },
+  { cat:"browser", key:"Ctrl + P", name:"打印", desc:"打印当前网页。" }
+];
+
+// ===== 渲染 =====
+const main = document.getElementById("main");
+const chipsEl = document.getElementById("chips");
+const emptyEl = document.getElementById("empty");
+const totalBadge = document.getElementById("totalBadge");
+const FAV_KEY = "shortcut-handbook-favs";
+let favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+let activeChip = "all";
+let keyword = "";
+
+function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function uid(f) { return f.cat + "::" + f.key; }
+function keyChips(key) {
+  return key.split("+").map(k => k.trim()).filter(k => k).map(k => `<kbd>${esc(k)}</kbd>`).join('<span class="plus">+</span>');
+}
+
+function buildChips() {
+  const all = [{ id:"all", name:"全部" }, ...CATS, { id:"fav", name:"★ 已收藏" }];
+  chipsEl.innerHTML = all.map(c => {
+    const n = c.id === "all" ? SC.length
+      : c.id === "fav" ? favs.size
+      : SC.filter(f => f.cat === c.id).length;
+    return `<button class="chip${activeChip===c.id?" active":""}" data-id="${c.id}">${c.name}<span class="n">${n}</span></button>`;
+  }).join("");
+}
+
+function match(f) {
+  if (activeChip === "fav" && !favs.has(uid(f))) return false;
+  if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
+  if (keyword) {
+    const hay = (f.name + " " + f.key + " " + f.desc + " " + (CATNAME[f.cat]||"")).toLowerCase();
+    if (!hay.includes(keyword)) return false;
+  }
+  return true;
+}
+
+function render() {
+  buildChips();
+  totalBadge.textContent = "共 " + SC.length + " 个快捷键";
+  let html = "";
+  CATS.forEach(c => {
+    const list = SC.filter(f => f.cat === c.id && match(f));
+    if (!list.length) return;
+    html += `<section class="cat-section">
+      <div class="cat-title">${c.name}<span class="hint">${c.hint}</span></div>
+      <div class="grid">${list.map(cardHTML).join("")}</div>
+    </section>`;
+  });
+  main.innerHTML = html;
+  emptyEl.style.display = html ? "none" : "block";
+}
+
+function cardHTML(f) {
+  const faved = favs.has(uid(f));
+  return `<div class="card" data-uid="${esc(uid(f))}">
+    <div class="card-head">
+      <span class="fname">${esc(f.name)}</span>
+      <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
+    </div>
+    <div class="keys">${keyChips(f.key)}</div>
+    <div class="desc">${esc(f.desc)}</div>
+    <button class="copy-btn">复制快捷键</button>
+  </div>`;
+}
+
+// ===== 交互 =====
+chipsEl.addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  activeChip = chip.dataset.id;
+  render();
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  keyword = e.target.value.trim().toLowerCase();
+  render();
+});
+
+main.addEventListener("click", e => {
+  const star = e.target.closest(".star");
+  const copyBtn = e.target.closest(".copy-btn");
+  if (star) {
+    const id = star.closest(".card").dataset.uid;
+    favs.has(id) ? favs.delete(id) : favs.add(id);
+    saveFavs();
+    render();
+    return;
+  }
+  if (copyBtn) {
+    const card = copyBtn.closest(".card");
+    const key = card.dataset.uid.split("::").slice(1).join("::");
+    navigator.clipboard.writeText(key).then(() => {
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制快捷键", 1200);
+    }).catch(() => {
+      const ta = document.createElement("textarea");
+      ta.value = key; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+      copyBtn.textContent = "已复制";
+      setTimeout(() => copyBtn.textContent = "复制快捷键", 1200);
+    });
+  }
+});
+
+render();
+</script>
+</body>
+</html>
