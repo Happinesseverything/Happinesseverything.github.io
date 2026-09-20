@@ -234,6 +234,25 @@
   .copy-btn.done { color: var(--green); border-color: rgba(31,122,77,.3); }
   @media (hover: none) { .copy-btn { opacity: 1; } }
 
+  /* 折叠功能：点 code-bar 收起/展开下面的代码 */
+  .code-bar {
+    cursor: pointer; -webkit-user-select: none; user-select: none;
+    justify-content: flex-start; transition: background .15s;
+  }
+  .code-bar:hover { background: #E2EDF7; }
+  .code-bar .copy-btn { margin-left: auto; }
+  /* 箭头用 CSS 画：细线圆角 chevron，比字符柔和 */
+  .fold-arrow {
+    margin-left: 8px; width: 9px; height: 9px; flex: 0 0 auto;
+    border-right: 2px solid var(--text-2); border-bottom: 2px solid var(--text-2);
+    border-radius: 0 0 2px; transform: rotate(45deg);
+    transition: transform .18s ease, border-color .15s;
+  }
+  .code-bar:hover .fold-arrow { border-color: #374151; }
+  .code-wrap.collapsed .fold-arrow { transform: rotate(-45deg); }
+  .code-wrap.collapsed pre.code { display: none; }
+  .code-wrap.collapsed .code-bar { border-bottom: none; }
+
   pre.code {
     font-family: var(--mono); font-size: 12.5px; line-height: 1.75;
     padding: 10px 12px; overflow-x: auto; color: #1F2937;
@@ -1456,6 +1475,22 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
   Array.prototype.forEach.call(document.querySelectorAll('pre.code'), function (pre) {
     var raw = pre.textContent;
     pre.innerHTML = highlight(raw);
+  });
+
+  /* ============ 代码块折叠 ============ */
+  Array.prototype.forEach.call(document.querySelectorAll('.code-bar'), function (bar) {
+    var lang = bar.querySelector('.code-lang');
+    if (lang && !bar.querySelector('.fold-arrow')) {
+      var arrow = document.createElement('span');
+      arrow.className = 'fold-arrow';
+      lang.parentNode.insertBefore(arrow, lang.nextSibling);
+    }
+    bar.setAttribute('title', '点击折叠 / 展开代码');
+    bar.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('.copy-btn')) return;
+      var box = bar.closest('.code-wrap');
+      if (box) box.classList.toggle('collapsed');
+    });
   });
 
   /* ============ 复制 ============ */
