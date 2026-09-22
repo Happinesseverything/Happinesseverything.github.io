@@ -14,10 +14,11 @@
   :root {
     --blue: #185FA5;
     --blue-mid: #378ADD;
+    --blue-accent: #2E6BFF;
     --blue-bg: #E6F1FB;
     --blue-bg-soft: #F2F8FD;
     --page-bg: #F4F8FC;
-    --card-border: rgba(24, 95, 165, 0.14);
+    --card-border: rgba(24,95,165, 0.14);
     --text: #1F2937;
     --text-2: #5B6B7C;
     --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
@@ -61,7 +62,7 @@
     background: #fff; font-size: 14px; font-family: var(--sans); color: var(--text);
     outline: none; transition: border-color .15s, box-shadow .15s;
   }
-  #search:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.15); }
+  #search:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(24,95,165,.15); }
   #search::placeholder { color: #9AA8B5; }
 
   .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
@@ -83,7 +84,7 @@
   }
   .tip-box h2 { font-size: 15px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
   .tip-box p { font-size: 13px; color: var(--text); line-height: 1.8; }
-  .tip-box b { color: var(--blue); font-weight: 500; }
+  .tip-box b { color: var(--blue-accent); font-weight: 500; }
 
   .cat-section { margin-bottom: 34px; }
   .cat-title {
@@ -102,7 +103,7 @@
   }
   .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
   .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue); }
+  .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue-accent); }
   .badge-new {
     font-size: 10px; background: #FCEBEB; color: #A32D2D;
     padding: 1px 6px; border-radius: 4px; margin-left: 6px; font-weight: 500;
@@ -180,8 +181,8 @@
     text-align: center; font-size: 12px; color: var(--text-2);
     padding: 24px 20px 40px; line-height: 2;
   }
-  footer b { color: var(--blue); font-weight: 500; }
-  footer a { color: var(--blue); text-decoration: none; border-bottom: 1px dashed var(--blue-mid); }
+  footer b { color: var(--blue-accent); font-weight: 500; }
+  footer a { color: var(--blue-accent); text-decoration: none; border-bottom: 1px dashed var(--blue-mid); }
 
   @media (max-width: 640px) {
     header { padding: 10px 14px 8px; }
@@ -271,7 +272,7 @@
 
 <script>
 /* ============ 图示（SVG） ============ */
-const HEAD = "#E6F1FB", CELL = "#FFFFFF", LINE = "rgba(24,95,165,.35)", DIM = "#5B6B7C", ACC = "#185FA5";
+const HEAD = "#E6F1FB", CELL = "#FFFFFF", LINE = "rgba(24,95,165,.35)", DIM = "#5B6B7C", ACC = "#2E6BFF";
 
 const FIG_ENTRY = `<svg viewBox="0 0 300 104" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">
   <rect x="6" y="6" width="288" height="92" rx="8" fill="#F7FBFE" stroke="${LINE}" stroke-width="0.8"/>

@@ -14,10 +14,11 @@
   :root {
     --blue: #185FA5;
     --blue-mid: #378ADD;
+    --blue-accent: #2E6BFF;
     --blue-bg: #E6F1FB;
     --blue-bg-soft: #F2F8FD;
     --page-bg: #F4F8FC;
-    --card-border: rgba(24, 95, 165, 0.14);
+    --card-border: rgba(24,95,165, 0.14);
     --text: #1F2937;
     --text-2: #5B6B7C;
     --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
@@ -56,10 +57,11 @@
   .book-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .book-name { font-size: 17px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 8px; }
   .book-icon {
-    width: 34px; height: 34px; border-radius: 9px; background: var(--blue-bg);
+    width: 40px; height: 40px; border-radius: 10px; background: var(--blue-bg);
     display: inline-flex; align-items: center; justify-content: center;
     font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue);
   }
+  .book-icon svg { width: 28px; height: 28px; display: block; }
   .open-tag {
     font-size: 12px; color: var(--blue); background: var(--blue-bg);
     padding: 3px 10px; border-radius: 999px; flex: 0 0 auto;
@@ -77,7 +79,7 @@
     border: 1px solid var(--card-border); border-radius: 14px;
     padding: 14px 18px; font-size: 12.5px; color: var(--text); line-height: 1.8;
   }
-  .tip b { color: var(--blue); font-weight: 500; }
+  .tip b { color: var(--blue-accent); font-weight: 500; }
 
   footer {
     text-align: center; font-size: 12px; color: var(--text-2);
@@ -93,7 +95,8 @@
     .book { padding: 16px; margin-bottom: 12px; border-radius: 14px; }
     .book-top { align-items: flex-start; gap: 10px; }
     .book-name { min-width: 0; font-size: 16px; line-height: 1.4; }
-    .book-icon { width: 30px; height: 30px; flex: 0 0 auto; }
+    .book-icon { width: 34px; height: 34px; flex: 0 0 auto; }
+    .book-icon svg { width: 22px; height: 22px; }
     .open-tag { margin-top: 2px; padding: 3px 8px; }
     .book-desc { font-size: 13px; line-height: 1.65; }
     .tip { padding: 12px 14px; font-size: 12px; line-height: 1.7; }
@@ -117,7 +120,7 @@
 <main>
   <a class="book" href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
     <div class="book-top">
-      <span class="book-name"><span class="book-icon">fx</span>Excel 函数速查手册</span>
+      <span class="book-name"><span class="book-icon"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(2 24 24)" fill="none" stroke="#2E6BFF" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 15 V33 M6.5 15 H12.5 M6.5 24 H11.5 M6.5 33 H12.5 M27 21.2 Q23.8 21.8 23.8 27 Q23.8 32.2 27 32.8 M40 16.5 V33" stroke-width="4.3"/><path d="M15.5 21 L21.5 33 M21.5 21 L15.5 33 M30.5 27.3 H36.5 Q36.5 21.2 33.5 21.2 Q30.5 21.2 30.5 27 Q30.5 32.8 33.5 32.8 Q35.4 32.8 36.4 31.6" stroke-width="2.3"/></g></svg></span>Excel 函数速查手册</span>
       <span class="open-tag">打开 →</span>
     </div>
     <div class="book-desc">39 个高频函数按 6 大场景分类，每个配语法、一句人话解释和真实示例。带搜索、收藏、一键复制语法，附 8 个必背快捷键和在线练习网站入口。</div>
@@ -129,7 +132,7 @@
 
   <a class="book" href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
     <div class="book-top">
-      <span class="book-name"><span class="book-icon">&gt;_</span>SQL 速查手册</span>
+      <span class="book-name"><span class="book-icon"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(2 24 24)" fill="none" stroke="#2E6BFF" stroke-linecap="round" stroke-linejoin="round"><path d="M17 15.5 Q9.5 16 9.5 20.8 Q9.5 24.5 13.5 24.5 Q17.5 24.5 17.5 28 Q17.5 32.8 10.5 32.3 M39 15.5 V33 H44" stroke-width="4.3"/><path d="M26 24.2 m-7.8 0 a7.8 7.8 0 1 0 15.6 0 a7.8 7.8 0 1 0 -15.6 0 M30.5 29.5 L34.8 33.8" stroke-width="2.4"/></g></svg></span>SQL 速查手册</span>
       <span class="open-tag">打开 →</span>
     </div>
     <div class="book-desc">44 条语句按 8 大场景分类，面向 Oracle 并标注 MySQL 方言差异，附学习顺序和刷题入口。每个配语法、人话解释和示例，支持搜索、收藏、复制语法。</div>
@@ -141,7 +144,7 @@
 
   <a class="book" href="Oracle%E4%B8%8EMySQL%E8%AF%AD%E6%B3%95%E5%AF%B9%E7%85%A7%E6%89%8B%E5%86%8C.html">
     <div class="book-top">
-      <span class="book-name"><span class="book-icon">≠</span>Oracle / MySQL 语法对照手册</span>
+      <span class="book-name"><span class="book-icon"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(2 24 24)" fill="none" stroke="#2E6BFF" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8.5" cy="24" rx="3.4" ry="9" stroke-width="4.3"/><path d="M16 21 V33 M16 23 Q19.2 22.4 19.4 25.2 M25.6 21 V33 M25.6 24 Q25.6 21 22.8 21 Q20.2 21 20.2 25 Q20.2 29 22.8 29 Q25.6 29 25.6 26.2 M33.8 16.5 V33" stroke-width="2.3"/><path d="M30.2 21.4 Q27.4 22 27.4 27 Q27.4 32 30.2 32.6 M37 27.3 H42.4 Q42.4 21.2 39.7 21.2 Q37 21.2 37 27 Q37 32.8 39.7 32.8 Q41.4 32.8 42.3 31.6" stroke-width="4.3"/></g></svg></span>Oracle / MySQL 语法对照手册</span>
       <span class="open-tag">打开 →</span>
     </div>
     <div class="book-desc">分三部分：16 类常用字段类型对照表、43 条常用语句按 8 大类逐条对照（有差异的 Oracle / MySQL 并排看，写法一致的只列一份）、Oracle 最容易踩的 20 个坑。支持搜索、收藏、一键复制代码。</div>
@@ -153,7 +156,7 @@
 
   <a class="book" href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
     <div class="book-top">
-      <span class="book-name"><span class="book-icon">PQ</span>Power Query 速查手册</span>
+      <span class="book-name"><span class="book-icon"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(2 24 24)" fill="none" stroke="#2E6BFF" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 34 Q10.6 24 12.6 14.6 M12.6 14.6 Q24.5 11.5 24 20.5 Q23.8 29 12.4 28.8" stroke-width="4.3"/><path d="M32 17 Q40.5 16.6 40.4 24.6 Q40.3 32.6 31.8 33 Q23.8 33.6 23.6 24.8 Q23.4 17.6 32 17 Z M38 29.5 Q40.6 31.8 42.2 34.4" stroke-width="2.4"/></g></svg></span>Power Query 速查手册</span>
       <span class="open-tag">打开 →</span>
     </div>
     <div class="book-desc">42 条操作按 6 大场景分类，配示意图讲清「逆透视」「合并 vs 追加」这些抽象概念。每条给「点哪里」的操作步骤 + 对应 M 函数写法，重点条目标了红标。</div>
@@ -165,7 +168,7 @@
 
   <a class="book" href="%E5%BF%AB%E6%8D%B7%E9%94%AE%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">
     <div class="book-top">
-      <span class="book-name"><span class="book-icon">KB</span>快捷键速查手册</span>
+      <span class="book-name"><span class="book-icon"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(2 24 24)" fill="none" stroke="#2E6BFF" stroke-linecap="round" stroke-linejoin="round"><path d="M11 34 Q10.2 24 11.8 14.6 M20.5 14.8 Q13 17.5 12 21 M14.2 18.5 Q18.5 25.5 20.3 33.4" stroke-width="4.3"/><path d="M26.5 34 Q25.8 24 27.3 14.6 M27.3 14.6 Q35.5 13.8 35 20 Q34.8 24 27.4 24.2 M27.4 24.2 Q36 24.2 35.8 29 Q35.6 33.5 27.3 33.8" stroke-width="2.4"/></g></svg></span>快捷键速查手册</span>
       <span class="open-tag">打开 →</span>
     </div>
     <div class="book-desc">覆盖系统日常、文件管理、文本编辑、Excel、Word、PPT、浏览器 7 大类快捷键，每个配一句说明。支持搜索、收藏、一键复制，附「先记 8 个万能键」速记区。</div>
