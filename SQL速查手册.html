@@ -93,8 +93,9 @@
     transition: box-shadow .15s, transform .15s;
   }
   .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
+  .card.flash { box-shadow: 0 0 0 3px rgba(46,107,255,.45), 0 6px 20px rgba(24,95,165,.15); border-color: var(--blue-accent); }
   .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue-accent); }
+  .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue); }
   .star {
     background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
     color: #C7D3DE; padding: 2px 4px; transition: color .15s, transform .15s;
@@ -107,6 +108,7 @@
     padding: 7px 10px; border-radius: 8px; margin-bottom: 8px;
     overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
   }
+  .syntax .hl-kw { color: var(--blue-accent); font-weight: 600; }
   .desc { font-size: 13.5px; color: var(--text); margin-bottom: 8px; }
   .desc b { color: #B45309; font-weight: 500; }
   .ex {
@@ -126,6 +128,29 @@
 
   .empty { display: none; text-align: center; padding: 60px 20px; color: var(--text-2); }
   .empty .big { font-size: 40px; margin-bottom: 10px; }
+
+  /* 全册概览 */
+  .overview-box {
+    background: #fff; border: 1px solid var(--card-border); border-radius: 16px;
+    padding: 14px 20px 10px; margin-bottom: 16px;
+  }
+  .overview-box h2 { font-size: 15px; font-weight: 600; color: var(--blue); margin-bottom: 4px; }
+  .overview-box .ov-sub { font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+  .ov-row { display: flex; align-items: baseline; gap: 12px; padding: 7px 0; }
+  .ov-row + .ov-row { border-top: 1px dashed rgba(24,95,165,.12); }
+  .ov-cat { flex: 0 0 92px; font-size: 13.5px; font-weight: 600; color: var(--blue); cursor: pointer; }
+  .ov-cat:hover { color: var(--blue-accent); text-decoration: underline; }
+  .ov-cat .ov-n { font-size: 11px; color: var(--text-2); font-weight: 400; margin-left: 3px; }
+  .ov-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ov-item {
+    font-family: var(--mono); font-size: 11.5px; color: #0C447C;
+    background: var(--blue-bg-soft); border: 1px solid rgba(24,95,165,.10);
+    padding: 2px 8px; border-radius: 6px; white-space: nowrap;
+    cursor: pointer; transition: all .15s;
+  }
+  .ov-item:hover {
+    background: var(--blue-bg); border-color: var(--blue-mid); color: var(--blue-accent);
+  }
 
   /* 顺序提示条 */
   .order-box {
@@ -181,6 +206,9 @@
     .subtitle { font-size: 12px; }
     #search { font-size: 16px; padding: 10px 12px 10px 38px; }
     .chips { flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+    .overview-box { padding: 12px 14px 8px; }
+    .ov-row { flex-direction: column; gap: 4px; padding: 8px 0; }
+    .ov-cat { flex: none; }
     .card { padding: 14px 14px 16px; }
     .card h3 { font-size: 15px; }
     .desc, .res-desc { font-size: 13.5px; }
@@ -213,6 +241,11 @@
     <h2>新手按这个顺序学，别跳</h2>
     <p><b>查询基础 → 条件筛选 → 聚合统计 → 多表连接 → 子查询 → 常用函数 → 窗口函数 → 增删改</b>。
     前四关能应付 80% 的查询需求；窗口函数是数据分析岗的分水岭；增删改最后学，且<b>先在测试表上练</b>，UPDATE 和 DELETE 忘了写 WHERE 就是事故。</p>
+  </div>
+  <div class="overview-box" id="overviewBox">
+    <h2>全册概览：8 大类都在这</h2>
+    <div class="ov-sub">点分类名可筛选该类；点语句名直达对应卡片</div>
+    <div id="overviewRows"></div>
   </div>
 </main>
 
@@ -486,12 +519,31 @@ function render() {
 
 function cardHTML(f) {
   const faved = favs.has(f.name);
-  return `<div class="card" data-name="${esc(f.name)}">
+  const idx = FNS.indexOf(f);
+  // 语法框开头的关键词用亮蓝高亮；中文名（如「别名 AS」「字符串拼接 ||」）取名字里的 ASCII 关键词
+  let base = f.name.split(" /")[0].split("+")[0];
+  if (/[\u4e00-\u9fff]/.test(base)) {
+    const toks = base.match(/[A-Za-z_][A-Za-z0-9_]*|\|\|/g) || [];
+    const t = toks.find(k => k === "||" || k.length >= 2);
+    base = t || "";
+  }
+  if (base.includes("(")) base = base.split("(")[0];
+  const s = esc(f.syntax);
+  let synHTML = s;
+  if (base) {
+    // 纯字母关键词用词边界匹配，符号（如 ||）用普通查找
+    const re = /^[A-Za-z_]/.test(base)
+      ? new RegExp("\\b" + base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b")
+      : null;
+    const i = re ? ((s.match(re) || { index: -1 }).index) : s.indexOf(base);
+    if (i >= 0) synHTML = s.slice(0, i) + '<span class="hl-kw">' + base + '</span>' + s.slice(i + base.length);
+  }
+  return `<div class="card" id="fn-${idx}" data-name="${esc(f.name)}">
     <div class="card-head">
       <span class="fname">${esc(f.name)}</span>
       <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
     </div>
-    <div class="syntax">${esc(f.syntax)}</div>
+    <div class="syntax">${synHTML}</div>
     <div class="desc">${f.desc}</div>
     <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>
     <button class="copy-btn">复制语法</button>
@@ -508,6 +560,39 @@ chipsEl.addEventListener("click", e => {
 document.getElementById("search").addEventListener("input", e => {
   keyword = e.target.value.trim().toLowerCase();
   render();
+});
+
+// ===== 全册概览 =====
+document.getElementById("overviewRows").innerHTML = CATS.map(c => {
+  const list = FNS.filter(f => f.cat === c.id);
+  return `<div class="ov-row">
+    <div class="ov-cat" data-id="${c.id}">${c.name}<span class="ov-n">${list.length}</span></div>
+    <div class="ov-items">${list.map(f => `<span class="ov-item" data-idx="${FNS.indexOf(f)}">${esc(f.name)}</span>`).join("")}</div>
+  </div>`;
+}).join("");
+
+document.getElementById("overviewBox").addEventListener("click", e => {
+  const item = e.target.closest(".ov-item");
+  if (item) {
+    // 点语句名：清空筛选，跳到对应卡片并闪高亮
+    activeChip = "all";
+    keyword = "";
+    document.getElementById("search").value = "";
+    render();
+    const card = document.getElementById("fn-" + item.dataset.idx);
+    if (card) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.classList.add("flash");
+      setTimeout(() => card.classList.remove("flash"), 1600);
+    }
+    return;
+  }
+  const cat = e.target.closest(".ov-cat");
+  if (cat) {
+    activeChip = cat.dataset.id;
+    render();
+    document.getElementById("main").scrollIntoView({ behavior: "smooth" });
+  }
 });
 
 main.addEventListener("click", e => {

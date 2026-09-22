@@ -194,6 +194,30 @@
     transition: box-shadow .15s;
   }
   .item:hover { box-shadow: 0 6px 20px rgba(24,95,165,.08); }
+  .item.flash { box-shadow: 0 0 0 3px rgba(46,107,255,.45), 0 6px 20px rgba(24,95,165,.15); border-color: var(--blue-accent); }
+
+  /* 全册概览 */
+  .overview-box {
+    background: #fff; border: 1px solid var(--card-border); border-radius: 16px;
+    padding: 14px 20px 10px; margin-bottom: 22px;
+  }
+  .overview-box h2 { font-size: 15px; font-weight: 600; color: var(--blue); margin-bottom: 4px; }
+  .overview-box .ov-sub { font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+  .ov-row { display: flex; align-items: baseline; gap: 12px; padding: 7px 0; }
+  .ov-row + .ov-row { border-top: 1px dashed rgba(24,95,165,.12); }
+  .ov-cat { flex: 0 0 92px; font-size: 13.5px; font-weight: 600; color: var(--blue); cursor: pointer; }
+  .ov-cat:hover { color: var(--blue-accent); text-decoration: underline; }
+  .ov-cat .ov-n { font-size: 11px; color: var(--text-2); font-weight: 400; margin-left: 3px; }
+  .ov-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ov-item {
+    font-family: var(--mono); font-size: 11.5px; color: #0C447C;
+    background: var(--blue-bg-soft); border: 1px solid rgba(24,95,165,.10);
+    padding: 2px 8px; border-radius: 6px; white-space: nowrap;
+    cursor: pointer; transition: all .15s;
+  }
+  .ov-item:hover {
+    background: var(--blue-bg); border-color: var(--blue-mid); color: var(--blue-accent);
+  }
   .item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
   .item-head h3 { font-size: 15.5px; font-weight: 600; color: var(--text); line-height: 1.5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
   .badge {
@@ -305,6 +329,9 @@
     .part-head h2 { font-size: 16.5px; }
     .part-sub { font-size: 12px; }
     .item { padding: 13px 14px 12px; }
+    .overview-box { padding: 12px 14px 8px; }
+    .ov-row { flex-direction: column; gap: 4px; padding: 8px 0; }
+    .ov-cat { flex: none; }
     .grid { grid-template-columns: 1fr; }
     .syntax, .ex { font-size: 11.5px; }
     .item-head h3 { font-size: 15px; }
@@ -348,6 +375,8 @@
       <b>第三部分</b>是 Oracle 最容易踩的 20 个坑，标 <span class="badge pit">高频坑</span> 的那几个建议优先看。
     </p>
   </div>
+
+  <div class="overview-box" id="overviewBox"></div>
 
   <!-- ============ 第一部分 ============ -->
   <section class="part">
@@ -1619,6 +1648,50 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
     keyword = e.target.value;
     apply();
   });
+
+  /* ============ 全册概览 ============ */
+  var ovBox = document.getElementById('overviewBox');
+  if (ovBox) {
+    var escOv = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    var rowsHtml = [];
+    rowsHtml.push('<div class="ov-row"><div class="ov-cat" data-k="type">字段类型<span class="ov-n">1</span></div>'
+      + '<div class="ov-items"><span class="ov-item" data-k="type" data-i="0">类型对照表</span></div></div>');
+    GRID_CATS.forEach(function (g) {
+      var list = SQL_DIFF.filter(function (d) { return d.cat === g.k; });
+      rowsHtml.push('<div class="ov-row"><div class="ov-cat" data-k="' + g.k + '">' + escOv(g.n)
+        + '<span class="ov-n">' + list.length + '</span></div><div class="ov-items">'
+        + list.map(function (d, i) {
+            return '<span class="ov-item" data-k="' + g.k + '" data-i="' + i + '">' + escOv(d.name) + '</span>';
+          }).join('') + '</div></div>');
+    });
+    rowsHtml.push('<div class="ov-row"><div class="ov-cat" data-k="pit">Oracle 坑<span class="ov-n">' + countOf('pit') + '</span></div>'
+      + '<div class="ov-items"><span class="ov-item" data-k="pit" data-i="0">高频坑清单</span></div></div>');
+    ovBox.innerHTML = '<h2>全册概览：三部分都在这</h2>'
+      + '<div class="ov-sub">点分类名可筛选该类；点语句名直达对应条目</div>' + rowsHtml.join('');
+
+    ovBox.addEventListener('click', function (e) {
+      if (!e.target.closest) return;
+      var t = e.target.closest('.ov-item');
+      if (t) {
+        activeChip = 'all'; keyword = ''; searchEl.value = '';
+        buildChips(); apply();
+        var list = document.querySelectorAll('.item[data-cat="' + t.dataset.k + '"]');
+        var el = list[parseInt(t.dataset.i, 10)];
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('flash');
+          setTimeout(function () { el.classList.remove('flash'); }, 1600);
+        }
+        return;
+      }
+      var catEl = e.target.closest('.ov-cat');
+      if (catEl) {
+        activeChip = catEl.dataset.k;
+        buildChips(); apply();
+        document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 });
 </script>
 
