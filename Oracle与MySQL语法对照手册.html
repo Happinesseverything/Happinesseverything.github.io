@@ -1639,6 +1639,13 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
       sec.style.display = vis ? '' : 'none';
     });
     emptyEl.style.display = shown ? 'none' : 'block';
+    /* 搜索时收起说明框/全册概览等静态块，让筛选结果顶到第一屏；徽标实时显示筛出数 */
+    Array.prototype.forEach.call(document.querySelectorAll('.intro-box, .overview-box'), function (b) {
+      b.style.display = kw ? 'none' : '';
+    });
+    totalBadge.textContent = (kw || activeChip !== 'all')
+      ? '筛出 ' + shown + ' / ' + items.length + ' 条'
+      : '共 ' + items.length + ' 条';
   }
 
   buildChips();
@@ -1648,6 +1655,19 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
     keyword = e.target.value;
     apply();
   });
+
+  /* 搜索兜底：input 事件不触发时轮询输入框内容变化 */
+  (function () {
+    var last = searchEl.value;
+    setInterval(function () {
+      var v = searchEl.value;
+      if (v !== last) {
+        last = v;
+        keyword = v;
+        apply();
+      }
+    }, 250);
+  })();
 
   /* ============ 全册概览 ============ */
   var ovBox = document.getElementById('overviewBox');

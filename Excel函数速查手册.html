@@ -547,10 +547,11 @@ function match(f) {
 
 function render() {
   buildChips();
-  totalBadge.textContent = "共 " + FNS.length + " 个函数";
+  let shown = 0;
   let html = "";
   CATS.forEach(c => {
     const list = FNS.filter(f => f.cat === c.id && match(f));
+    shown += list.length;
     if (!list.length) return;
     html += `<section class="cat-section">
       <div class="cat-title">${c.name}<span class="hint">${c.hint}</span></div>
@@ -559,6 +560,12 @@ function render() {
   });
   main.innerHTML = html;
   emptyEl.style.display = html ? "none" : "block";
+  // 搜索时收起全册概览等静态块，让筛选结果顶到第一屏看得见
+  document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box")
+    .forEach(b => b.style.display = keyword ? "none" : "");
+  totalBadge.textContent = (keyword || activeChip !== "all")
+    ? "筛出 " + shown + " / " + FNS.length + " 个"
+    : "共 " + FNS.length + " 个函数";
 }
 
 function cardHTML(f) {
@@ -595,6 +602,20 @@ document.getElementById("search").addEventListener("input", e => {
   keyword = e.target.value.trim().toLowerCase();
   render();
 });
+
+// 搜索兜底：个别浏览器 input 事件不触发时，轮询输入框内容变化
+(function () {
+  const searchEl = document.getElementById("search");
+  let last = searchEl.value;
+  setInterval(() => {
+    const v = searchEl.value;
+    if (v !== last) {
+      last = v;
+      keyword = v.trim().toLowerCase();
+      render();
+    }
+  }, 250);
+})();
 
 // ===== 全册概览 =====
 document.getElementById("overviewRows").innerHTML = CATS.map(c => {
