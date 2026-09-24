@@ -539,7 +539,7 @@ function match(f) {
   if (activeChip === "fav" && !favs.has(f.name)) return false;
   if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
   if (keyword) {
-    const hay = (f.name + " " + f.syntax + " " + f.desc + " " + f.ex).toLowerCase();
+    const hay = f.name.toLowerCase();
     if (!hay.includes(keyword)) return false;
   }
   return true;

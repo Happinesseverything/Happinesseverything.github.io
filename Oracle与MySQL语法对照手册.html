@@ -1618,7 +1618,18 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
       if (activeChip === 'all') okCat = true;
       else if (activeChip === 'fav') okCat = favs.has(el.dataset.id);
       else okCat = (el.dataset.cat === activeChip);
-      var okKw = !kw || el.textContent.toLowerCase().indexOf(kw) >= 0;
+      /* 只搜标题：取 item-head h3 的文字并剔除徽章，不搜正文和代码 */
+      var okKw = true;
+      if (kw) {
+        var h3 = el.querySelector('.item-head h3');
+        var txt = '';
+        if (h3) {
+          var hc = h3.cloneNode(true);
+          Array.prototype.forEach.call(hc.querySelectorAll('.badge'), function (b) { hc.removeChild(b); });
+          txt = hc.textContent.toLowerCase();
+        }
+        okKw = txt.indexOf(kw) >= 0;
+      }
       var show = okCat && okKw;
       el.style.display = show ? '' : 'none';
       if (show) shown++;

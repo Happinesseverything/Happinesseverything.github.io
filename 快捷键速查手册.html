@@ -440,7 +440,8 @@ function match(f) {
   if (activeChip === "fav" && !favs.has(uid(f))) return false;
   if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
   if (keyword) {
-    const hay = (f.name + " " + f.key + " " + f.desc + " " + (CATNAME[f.cat]||"")).toLowerCase();
+    /* 快捷键的按键组合显示在卡片标题里，算标题的一部分 */
+    const hay = (f.name + " " + f.key).toLowerCase();
     if (!hay.includes(keyword)) return false;
   }
   return true;
