@@ -99,6 +99,13 @@
   }
   .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
   .card.flash { box-shadow: 0 0 0 3px rgba(46,107,255,.45), 0 6px 20px rgba(24,95,165,.15); border-color: var(--blue-accent); }
+  /* 场景词标签：把搜索匹配的依据亮出来，搜到谁不再玄学 */
+  .scene-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .scene-tags .st {
+    font-size: 11.5px; line-height: 1.2; padding: 3px 8px; border-radius: 6px;
+    background: var(--blue-bg-soft); border: 1px solid rgba(24,95,165,.12); color: var(--text-2);
+  }
+  .scene-tags .st.hl { background: #FFF3E0; border-color: #E8965A; color: #B45309; font-weight: 600; }
 
   /* 全册概览 */
   .overview-box {
@@ -343,7 +350,7 @@
 <footer>
   <div><b>使用方法：</b>拿真实工作数据练手，遇到场景先来这里搜</div>
   <div>系统打底推荐 B 站 <b>王佩丰《Excel 基础教程 24 讲》</b> · 深入数据分析看 <b>孙兴华</b> · 做报表看板看 <b>戴师兄</b></div>
-  <div>配套手册：<a href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">SQL 速查手册</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query 速查手册</a></div>
+  <div>其他手册：<a href="index.html">目录</a> · <a href="SQL%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">SQL 速查</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query</a> · <a href="%E5%BF%AB%E6%8D%B7%E9%94%AE%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">快捷键</a> · <a href="Oracle%E4%B8%8EMySQL%E8%AF%AD%E6%B3%95%E5%AF%B9%E7%85%A7%E6%89%8B%E5%86%8C.html">Oracle/MySQL 对照</a></div>
 </footer>
 
 <script>
@@ -358,155 +365,155 @@ const CATS = [
 
 const FNS = [
   // ===== 查找匹配 =====
-  { cat:"lookup", name:"XLOOKUP", syntax:'=XLOOKUP(查找值, 查找区域, 返回区域, [找不到显示])',
+  { cat:"lookup", name:"XLOOKUP", scene:"查找 匹配 查值 对查 左右都能查 找不到时显示", syntax:'=XLOOKUP(查找值, 查找区域, 返回区域, [找不到显示])',
     desc:"新版查找王。想查哪列查哪列，不用数第几列，左右都能查。",
     ex:'=XLOOKUP("XM001", A:A, C:C, "查无此项")' },
-  { cat:"lookup", name:"VLOOKUP", syntax:'=VLOOKUP(查找值, 表格区域, 返回第几列, FALSE)',
+  { cat:"lookup", name:"VLOOKUP", scene:"查找 匹配 跨表对数 按编码查信息 往右查", syntax:'=VLOOKUP(查找值, 表格区域, 返回第几列, FALSE)',
     desc:"老版查找，只能往右找。最后一个参数一定写 FALSE（精确匹配），不然结果会错得离谱。",
     ex:'=VLOOKUP("XM001", A:D, 3, FALSE)' },
-  { cat:"lookup", name:"INDEX+MATCH", syntax:'=INDEX(返回区域, MATCH(查找值, 查找区域, 0))',
+  { cat:"lookup", name:"INDEX+MATCH", scene:"查找 匹配 万能查 反向查 按位置取值", syntax:'=INDEX(返回区域, MATCH(查找值, 查找区域, 0))',
     desc:"MATCH 找位置，INDEX 按位置取值。组合起来比 VLOOKUP 灵活，老版本 Excel 的万能查法。",
     ex:'=INDEX(C:C, MATCH("XM001", A:A, 0))' },
-  { cat:"lookup", name:"MATCH", syntax:'=MATCH(查找值, 查找区域, 0)',
+  { cat:"lookup", name:"MATCH", scene:"查找 位置 第几行 第几列", syntax:'=MATCH(查找值, 查找区域, 0)',
     desc:"不返回值，只告诉你目标在第几行/第几列。常和 INDEX 搭配。",
     ex:'=MATCH("XM001", A:A, 0) → 返回 5' },
-  { cat:"lookup", name:"XMATCH", syntax:'=XMATCH(查找值, 查找区域, [匹配模式], [搜索模式])',
+  { cat:"lookup", name:"XMATCH", scene:"查找 位置 从后往前 倒着找", syntax:'=XMATCH(查找值, 查找区域, [匹配模式], [搜索模式])',
     desc:"MATCH 的新版，支持从后往前找、近似匹配，Office 365 可用。",
     ex:'=XMATCH("XM001", A:A, 0, -1)  从后往前找' },
-  { cat:"lookup", name:"FILTER", syntax:'=FILTER(数据区域, 条件)',
+  { cat:"lookup", name:"FILTER", scene:"筛选 过滤 按条件抽出一批 名单 原表不动", syntax:'=FILTER(数据区域, 条件)',
     desc:"按条件把一批记录筛出来，原表不动。结果会随数据变化自动更新。",
     ex:'=FILTER(A2:D100, B2:B100="已完工")' },
 
   // ===== 条件统计 =====
-  { cat:"stat", name:"SUMIF", syntax:'=SUMIF(条件区域, 条件, [求和区域])',
+  { cat:"stat", name:"SUMIF", scene:"条件求和 按乡镇统计 汇总 单条件", syntax:'=SUMIF(条件区域, 条件, [求和区域])',
     desc:"单条件求和。比如「只统计某乡镇的资金总额」。",
     ex:'=SUMIF(B:B, "青山镇", C:C)' },
-  { cat:"stat", name:"SUMIFS", syntax:'=SUMIFS(求和区域, 条件区域1, 条件1, ...)',
+  { cat:"stat", name:"SUMIFS", scene:"多条件求和 汇总 统计金额", syntax:'=SUMIFS(求和区域, 条件区域1, 条件1, ...)',
     desc:"多条件求和。注意：求和区域放最前面，和 SUMIF 顺序正好相反，别搞混。",
     ex:'=SUMIFS(D:D, B:B, "青山镇", C:C, "产业类")' },
-  { cat:"stat", name:"COUNTIF", syntax:'=COUNTIF(条件区域, 条件)',
+  { cat:"stat", name:"COUNTIF", scene:"条件计数 数个数 统计条数 单条件", syntax:'=COUNTIF(条件区域, 条件)',
     desc:"单条件计数。比如「状态为已完工的项目有几个」。",
     ex:'=COUNTIF(C:C, "已完工")' },
-  { cat:"stat", name:"COUNTIFS", syntax:'=COUNTIFS(条件区域1, 条件1, ...)',
+  { cat:"stat", name:"COUNTIFS", scene:"多条件计数 数个数 统计", syntax:'=COUNTIFS(条件区域1, 条件1, ...)',
     desc:"多条件计数，条件可以一直加。",
     ex:'=COUNTIFS(B:B, "青山镇", C:C, "已完工")' },
-  { cat:"stat", name:"AVERAGEIFS", syntax:'=AVERAGEIFS(求平均区域, 条件区域1, 条件1, ...)',
+  { cat:"stat", name:"AVERAGEIFS", scene:"条件平均 求平均值 多条件", syntax:'=AVERAGEIFS(求平均区域, 条件区域1, 条件1, ...)',
     desc:"多条件求平均值，比如某类项目的平均资金额。",
     ex:'=AVERAGEIFS(D:D, C:C, "产业类")' },
-  { cat:"stat", name:"AND / OR / NOT", syntax:'=AND(条件1, 条件2, ...)  =OR(条件1, 条件2, ...)',
+  { cat:"stat", name:"AND / OR / NOT", scene:"多条件 组合判断 并且 或者 逻辑", syntax:'=AND(条件1, 条件2, ...)  =OR(条件1, 条件2, ...)',
     desc:"多条件组合判断，本身只返回 TRUE/FALSE，几乎不单独用——都是塞进 IF 里当条件。AND 要全部满足才算数，OR 满足一个就行。",
     ex:'=IF(AND(B2>=60, C2>=60), "通过", "补考")' },
-  { cat:"stat", name:"IF", syntax:'=IF(条件, 满足时返回, 不满足时返回)',
+  { cat:"stat", name:"IF", scene:"判断 如果 分档 打标 是否合格", syntax:'=IF(条件, 满足时返回, 不满足时返回)',
     desc:"最基础的判断：非此即彼。嵌套太多层时用 IFS 替代。",
     ex:'=IF(B2>=90, "优秀", "待改进")' },
-  { cat:"stat", name:"IFS", syntax:'=IFS(条件1, 结果1, 条件2, 结果2, ...)',
+  { cat:"stat", name:"IFS", scene:"多分支判断 分档 等级 不嵌套", syntax:'=IFS(条件1, 结果1, 条件2, 结果2, ...)',
     desc:"多分支判断，不用一层层嵌套 IF，清爽好读。",
     ex:'=IFS(B2>=90,"优秀", B2>=60,"合格", TRUE,"不合格")' },
-  { cat:"stat", name:"IFERROR", syntax:'=IFERROR(公式, 出错时显示)',
+  { cat:"stat", name:"IFERROR", scene:"报错 容错 消掉 n a 错误值 干净", syntax:'=IFERROR(公式, 出错时显示)',
     desc:"公式报错不再显示 #N/A，显示你指定的内容，报表瞬间干净。",
     ex:'=IFERROR(VLOOKUP(A2,D:E,2,0), "未匹配")' },
-  { cat:"stat", name:"COUNTA", syntax:'=COUNTA(区域)',
+  { cat:"stat", name:"COUNTA", scene:"非空计数 数条数 实际填了多少", syntax:'=COUNTA(区域)',
     desc:"数非空单元格个数。快速确认「这一列实际填了多少条」。",
     ex:'=COUNTA(A2:A500)' },
 
   // ===== 文本处理 =====
-  { cat:"text", name:"TEXT", syntax:'=TEXT(值, "格式代码")',
+  { cat:"text", name:"TEXT", scene:"格式化 日期变文本 金额两位小数 年月 显示格式", syntax:'=TEXT(值, "格式代码")',
     desc:"把数字/日期变成指定格式的文本。金额两位小数、日期变「2026年9月」都靠它。",
     ex:'=TEXT(A1, "yyyy年m月d日")' },
-  { cat:"text", name:"LEFT / RIGHT / MID", syntax:'=LEFT(文本, 位数)  =MID(文本, 起始位, 位数)',
+  { cat:"text", name:"LEFT / RIGHT / MID", scene:"截取 拆分 取左边 取中间 身份证 编码分段 文本", syntax:'=LEFT(文本, 位数)  =MID(文本, 起始位, 位数)',
     desc:"从左边、右边、中间截取字符串。拆身份证号、编码分段必备。",
     ex:'=MID(A2, 7, 8)  取身份证里的出生日期' },
-  { cat:"text", name:"CONCAT / &", syntax:'=CONCAT(文本1, 文本2, ...)  或  =文本1 & 文本2',
+  { cat:"text", name:"CONCAT / &", scene:"拼接 连接 合并文本 连成一段 文本", syntax:'=CONCAT(文本1, 文本2, ...)  或  =文本1 & 文本2',
     desc:"最基础的拼接：把几段文本连成一段。日常用 & 符号更顺手，任何版本都能用。注意：TEXTJOIN 是拼一整个区域，CONCAT/& 是拼指定的几段。",
     ex:'=A2 & "-" & B2  拼成 青山镇-饮水工程' },
-  { cat:"text", name:"TEXTSPLIT", syntax:'=TEXTSPLIT(文本, 列分隔符, [行分隔符])',
+  { cat:"text", name:"TEXTSPLIT", scene:"拆分 分列 一列拆多列 按分隔符 文本", syntax:'=TEXTSPLIT(文本, 列分隔符, [行分隔符])',
     desc:"一个公式把「姓名-部门-金额」拆成多列，Office 365 专属，告别手动分列。",
     ex:'=TEXTSPLIT(A2, "-")' },
-  { cat:"text", name:"TEXTJOIN", syntax:'=TEXTJOIN("分隔符", 是否忽略空, 区域)',
+  { cat:"text", name:"TEXTJOIN", scene:"拼接 连接 整个区域合并 顿号 文本", syntax:'=TEXTJOIN("分隔符", 是否忽略空, 区域)',
     desc:"把一整个区域拼成一句话，自动跳过空格。比 & 一个个连优雅得多。",
     ex:'=TEXTJOIN("、", TRUE, A2:A10)' },
-  { cat:"text", name:"TRIM", syntax:'=TRIM(文本)',
+  { cat:"text", name:"TRIM", scene:"去空格 空格 清洗 匹配不上 文本", syntax:'=TRIM(文本)',
     desc:"去掉首尾多余空格。VLOOKUP 死活查不到？八成是数据里藏着空格，先 TRIM 一下。",
     ex:'=TRIM(A2)' },
-  { cat:"text", name:"REPLACE", syntax:'=REPLACE(原文本, 起始位, 替换几个字, "新内容")',
+  { cat:"text", name:"REPLACE", scene:"替换 打码 手机号 按位置换 文本", syntax:'=REPLACE(原文本, 起始位, 替换几个字, "新内容")',
     desc:"按「位置」替换：从第几个字开始、换掉几个字。和 SUBSTITUTE 的区别：SUBSTITUTE 按内容找着换，REPLACE 按位置换。给手机号中间四位打码就用它。",
     ex:'=REPLACE(A2, 4, 4, "****")  手机号变成 138****5678' },
-  { cat:"text", name:"SUBSTITUTE", syntax:'=SUBSTITUTE(文本, "旧内容", "新内容")',
+  { cat:"text", name:"SUBSTITUTE", scene:"替换 批量换内容 删掉符号 文本", syntax:'=SUBSTITUTE(文本, "旧内容", "新内容")',
     desc:"替换指定内容，比如批量把「镇」改成「乡」，或删掉文本里的某个符号。",
     ex:'=SUBSTITUTE(A2, " ", "")' },
-  { cat:"text", name:"LEN", syntax:'=LEN(文本)',
+  { cat:"text", name:"LEN", scene:"长度 字符个数 位数 校验 身份证18位 文本", syntax:'=LEN(文本)',
     desc:"数字符个数。检查身份证号是不是 18 位、编码位数对不对，一眼发现脏数据。",
     ex:'=LEN(A2)' },
-  { cat:"text", name:"FIND / SEARCH", syntax:'=FIND("要找的字", 文本)',
+  { cat:"text", name:"FIND / SEARCH", scene:"找位置 定位 包含 第几个字 文本", syntax:'=FIND("要找的字", 文本)',
     desc:"返回某个字在文本里的位置，常配合 MID 截取。FIND 区分大小写，SEARCH 不区分。",
     ex:'=FIND("-", A2)' },
-  { cat:"text", name:"REPT", syntax:'=REPT(字符, 次数)',
+  { cat:"text", name:"REPT", scene:"重复字符 进度条 星号", syntax:'=REPT(字符, 次数)',
     desc:"重复字符 n 次。配合数值能画出单元格内的迷你进度条。",
     ex:'=REPT("█", B2/10)  简易进度条' },
 
   // ===== 日期计算 =====
-  { cat:"date", name:"TODAY / NOW", syntax:'=TODAY()  =NOW()',
+  { cat:"date", name:"TODAY / NOW", scene:"今天 当前日期 当前时间 剩余天数 截止日", syntax:'=TODAY()  =NOW()',
     desc:"返回今天日期 / 现在时间，打开表格自动更新。做「距截止还有几天」必备。",
     ex:'=A2 - TODAY()  还剩多少天' },
-  { cat:"date", name:"YEAR / MONTH / DAY", syntax:'=YEAR(日期)  =MONTH(日期)',
+  { cat:"date", name:"YEAR / MONTH / DAY", scene:"拆年月日 按月汇总 年份 月份", syntax:'=YEAR(日期)  =MONTH(日期)',
     desc:"从日期里拆出年、月、日，按月汇总时先拆一列「月份」。",
     ex:'=MONTH(A2)' },
-  { cat:"date", name:"DATE", syntax:'=DATE(年, 月, 日)',
+  { cat:"date", name:"DATE", scene:"拼日期 组日期 年月日合并", syntax:'=DATE(年, 月, 日)',
     desc:"把分开的年月日拼成日期，会自动进位（DATE(2026,13,1) 自动算成 2027 年 1 月）。",
     ex:'=DATE(2026, 9, 1)' },
-  { cat:"date", name:"DATEDIF", syntax:'=DATEDIF(开始日期, 结束日期, "Y"/"M"/"D")',
+  { cat:"date", name:"DATEDIF", scene:"工龄 年龄 相差 间隔 多少年 日期", syntax:'=DATEDIF(开始日期, 结束日期, "Y"/"M"/"D")',
     desc:"算两个日期之间隔了多少年/月/天。工龄、年龄神器。注意：函数列表里搜不到它，但直接敲能用。",
     ex:'=DATEDIF(A2, TODAY(), "Y")  工龄几年' },
-  { cat:"date", name:"EDATE", syntax:'=EDATE(开始日期, 月数)',
+  { cat:"date", name:"EDATE", scene:"几个月后 到期日 合同到期 日期", syntax:'=EDATE(开始日期, 月数)',
     desc:"n 个月之后的同一天。合同 6 个月后到期是哪天？一键出。",
     ex:'=EDATE(A2, 6)' },
-  { cat:"date", name:"EOMONTH", syntax:'=EOMONTH(日期, 偏移月数)',
+  { cat:"date", name:"EOMONTH", scene:"月末 月底 最后一天 月报 日期", syntax:'=EOMONTH(日期, 偏移月数)',
     desc:"返回月末最后一天。做月报时自动生成「本月最后一天」。",
     ex:'=EOMONTH(TODAY(), 0)  本月最后一天' },
-  { cat:"date", name:"WORKDAY", syntax:'=WORKDAY(开始日期, 天数, [节假日区域])',
+  { cat:"date", name:"WORKDAY", scene:"工作日 跳过周末 节假日 几天后 日期", syntax:'=WORKDAY(开始日期, 天数, [节假日区域])',
     desc:"n 个工作日之后是哪天，自动跳过周末，还能排除法定节假日。",
     ex:'=WORKDAY(A2, 10, 节假日表!A:A)' },
-  { cat:"date", name:"NETWORKDAYS", syntax:'=NETWORKDAYS(开始日期, 结束日期, [节假日])',
+  { cat:"date", name:"NETWORKDAYS", scene:"工作日天数 耗时 两个日期之间", syntax:'=NETWORKDAYS(开始日期, 结束日期, [节假日])',
     desc:"两个日期之间有几个工作日，算项目实际耗时用。",
     ex:'=NETWORKDAYS(A2, B2)' },
-  { cat:"date", name:"WEEKDAY", syntax:'=WEEKDAY(日期, 2)',
+  { cat:"date", name:"WEEKDAY", scene:"星期几 周几", syntax:'=WEEKDAY(日期, 2)',
     desc:"返回星期几。参数写 2，周一是 1、周日是 7，符合国内习惯。",
     ex:'=WEEKDAY(A2, 2)' },
 
   // ===== 汇总数学 =====
-  { cat:"math", name:"SUM / AVERAGE / MAX / MIN", syntax:'=SUM(区域)',
+  { cat:"math", name:"SUM / AVERAGE / MAX / MIN", scene:"求和 平均 最大 最小 基础汇总", syntax:'=SUM(区域)',
     desc:"求和、平均、最大、最小。基本功，配合 Alt+= 一键求和更快。",
     ex:'=SUM(C2:C100)' },
-  { cat:"math", name:"ROUND 系列", syntax:'=ROUND(值, 位数)  =ROUNDUP(值, 位数)  =ROUNDDOWN(值, 位数)',
+  { cat:"math", name:"ROUND 系列", scene:"四舍五入 取整 金额 位数 舍入", syntax:'=ROUND(值, 位数)  =ROUNDUP(值, 位数)  =ROUNDDOWN(值, 位数)',
     desc:"四舍五入 / 只入不舍 / 只舍不入。金额对不上时，先检查是不是没统一取舍规则。",
     ex:'=ROUND(A2, 2)' },
-  { cat:"math", name:"INT", syntax:'=INT(值)',
+  { cat:"math", name:"INT", scene:"取整 去掉小数 整数", syntax:'=INT(值)',
     desc:"直接砍掉小数部分，只留整数。",
     ex:'=INT(A2)' },
-  { cat:"math", name:"RANK", syntax:'=RANK(值, 区域)',
+  { cat:"math", name:"RANK", scene:"排名 第几 名次", syntax:'=RANK(值, 区域)',
     desc:"排名。某项目资金额在全市排第几，一个公式搞定。",
     ex:'=RANK(B2, B:B)' },
-  { cat:"math", name:"LARGE / SMALL", syntax:'=LARGE(区域, 第几大)',
+  { cat:"math", name:"LARGE / SMALL", scene:"第n大 第n小 前三 资金额排名", syntax:'=LARGE(区域, 第几大)',
     desc:"取第 n 大 / 第 n 小的值，比如「资金额前 3 的项目是多少」。",
     ex:'=LARGE(C:C, 3)' },
-  { cat:"math", name:"SUBTOTAL", syntax:'=SUBTOTAL(9, 区域)',
+  { cat:"math", name:"SUBTOTAL", scene:"筛选后汇总 小计 只算可见行", syntax:'=SUBTOTAL(9, 区域)',
     desc:"只对筛选后可见的行汇总（9 代表求和）。筛选状态下想看小计，必须用它而不是 SUM。",
     ex:'=SUBTOTAL(9, C2:C100)' },
-  { cat:"math", name:"MOD", syntax:'=MOD(被除数, 除数)',
+  { cat:"math", name:"MOD", scene:"取余 奇偶 隔行填色 分组", syntax:'=MOD(被除数, 除数)',
     desc:"取余数。隔行填色、每 n 行分一组这类花活的底层工具。",
     ex:'=MOD(ROW(), 2)' },
 
   // ===== 动态数组 =====
-  { cat:"array", name:"UNIQUE", syntax:'=UNIQUE(区域)',
+  { cat:"array", name:"UNIQUE", scene:"去重 不重复 唯一值 名单 下拉选项", syntax:'=UNIQUE(区域)',
     desc:"提取不重复的值，结果自动更新。下拉选项、去重名单一步到位。",
     ex:'=UNIQUE(B2:B500)' },
-  { cat:"array", name:"SORT", syntax:'=SORT(区域, [按第几列], [升降序])',
+  { cat:"array", name:"SORT", scene:"排序 升序 降序", syntax:'=SORT(区域, [按第几列], [升降序])',
     desc:"对区域排序并输出新表，原表不动。",
     ex:'=SORT(A2:D100, 4, -1)  按第4列降序' },
-  { cat:"array", name:"SEQUENCE", syntax:'=SEQUENCE(行数, [列数], [起始], [步长])',
+  { cat:"array", name:"SEQUENCE", scene:"序号 自动编号 序列 模板", syntax:'=SEQUENCE(行数, [列数], [起始], [步长])',
     desc:"自动生成序号序列，做模板时不用手拖。",
     ex:'=SEQUENCE(100)' },
-  { cat:"array", name:"VSTACK", syntax:'=VSTACK(区域1, 区域2, ...)',
+  { cat:"array", name:"VSTACK", scene:"多表合并 纵向拼接 合成一张表", syntax:'=VSTACK(区域1, 区域2, ...)',
     desc:"把多个结构相同的表纵向拼成一张大表，再配合 UNIQUE 去重名单。",
     ex:'=UNIQUE(VSTACK(表1!A:A, 表2!A:A))' }
 ];
@@ -539,7 +546,8 @@ function match(f) {
   if (activeChip === "fav" && !favs.has(f.name)) return false;
   if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
   if (keyword) {
-    const hay = f.name.toLowerCase();
+    // 标题 + 场景词一起匹配，「查找」「日期」这类场景词也能搜到
+    const hay = (f.name + " " + (f.scene || "")).toLowerCase();
     if (!hay.includes(keyword)) return false;
   }
   return true;
@@ -559,6 +567,12 @@ function render() {
     </section>`;
   });
   main.innerHTML = html;
+  // 场景词命中高亮：搜的词落在哪张标签上，一眼看到
+  if (keyword) {
+    main.querySelectorAll(".scene-tags .st").forEach(st => {
+      if (st.textContent.toLowerCase().includes(keyword)) st.classList.add("hl");
+    });
+  }
   emptyEl.style.display = html ? "none" : "block";
   // 搜索时收起全册概览等静态块，让筛选结果顶到第一屏看得见
   document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box")
@@ -583,6 +597,7 @@ function cardHTML(f) {
       <span class="fname">${esc(f.name)}</span>
       <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
     </div>
+    ${f.scene ? `<div class="scene-tags">${f.scene.trim().split(/\s+/).map(w => `<span class="st">${esc(w)}</span>`).join("")}</div>` : ""}
     <div class="syntax">${synHTML}</div>
     <div class="desc">${esc(f.desc)}</div>
     <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>

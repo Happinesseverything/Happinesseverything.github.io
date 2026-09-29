@@ -94,6 +94,13 @@
   }
   .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
   .card.flash { box-shadow: 0 0 0 3px rgba(46,107,255,.45), 0 6px 20px rgba(24,95,165,.15); border-color: var(--blue-accent); }
+  /* 场景词标签：把搜索匹配的依据亮出来，搜到谁不再玄学 */
+  .scene-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .scene-tags .st {
+    font-size: 11.5px; line-height: 1.2; padding: 3px 8px; border-radius: 6px;
+    background: var(--blue-bg-soft); border: 1px solid rgba(24,95,165,.12); color: var(--text-2);
+  }
+  .scene-tags .st.hl { background: #FFF3E0; border-color: #E8965A; color: #B45309; font-weight: 600; }
   .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .fname { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--blue); }
   .star {
@@ -306,7 +313,7 @@
 
 <footer>
   <div><b>使用方法：</b>先按顺序过一遍，之后遇到场景来这里搜，复制语法改改用</div>
-  <div>配套手册：<a href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Excel 函数速查手册</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query 速查手册</a></div>
+  <div>其他手册：<a href="index.html">目录</a> · <a href="Excel%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Excel 函数</a> · <a href="PowerQuery%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">Power Query</a> · <a href="%E5%BF%AB%E6%8D%B7%E9%94%AE%E9%80%9F%E6%9F%A5%E6%89%8B%E5%86%8C.html">快捷键</a> · <a href="Oracle%E4%B8%8EMySQL%E8%AF%AD%E6%B3%95%E5%AF%B9%E7%85%A7%E6%89%8B%E5%86%8C.html">Oracle/MySQL 对照</a></div>
 </footer>
 
 <script>
@@ -323,147 +330,147 @@ const CATS = [
 
 const FNS = [
   // ===== 查询基础 =====
-  { cat:"basic", name:"SELECT", syntax:"SELECT 列1, 列2 FROM 表名",
+  { cat:"basic", name:"SELECT", scene:"查询 查数据 取哪几列 查表", syntax:"SELECT 列1, 列2 FROM 表名",
     desc:"查询的起点：从哪张表、取哪几列。SELECT * 是全都要，练习随便用，正式环境尽量写明列名。",
     ex:"SELECT 项目名, 金额 FROM 项目表" },
-  { cat:"basic", name:"WHERE", syntax:"SELECT ... FROM ... WHERE 条件",
+  { cat:"basic", name:"WHERE", scene:"条件 筛选 过滤 按条件查", syntax:"SELECT ... FROM ... WHERE 条件",
     desc:"只保留满足条件的行。绝大多数查询都靠它缩小范围，先筛行，再谈别的。",
     ex:"SELECT * FROM 项目表 WHERE 金额 > 100000" },
-  { cat:"basic", name:"ORDER BY", syntax:"ORDER BY 列名 DESC",
+  { cat:"basic", name:"ORDER BY", scene:"排序 升序 降序 多列排序", syntax:"ORDER BY 列名 DESC",
     desc:"排序。默认升序（ASC），加 DESC 变降序，可以写多列：先按第一列排，相同再按第二列。",
     ex:"ORDER BY 金额 DESC, 下达日期 ASC" },
-  { cat:"basic", name:"取前 N 行", syntax:"Oracle: FETCH FIRST 10 ROWS ONLY ｜ MySQL: LIMIT 10",
+  { cat:"basic", name:"取前 N 行", scene:"分页 前几条 前十 top limit rownum", syntax:"Oracle: FETCH FIRST 10 ROWS ONLY ｜ MySQL: LIMIT 10",
     desc:"只看前几行。<b>方言差异：</b>Oracle 用 FETCH FIRST（或老写法 WHERE ROWNUM <= 10），MySQL 用 LIMIT。",
     ex:"SELECT * FROM 项目表 ORDER BY 金额 DESC FETCH FIRST 10 ROWS ONLY" },
-  { cat:"basic", name:"DISTINCT", syntax:"SELECT DISTINCT 列名 FROM 表名",
+  { cat:"basic", name:"DISTINCT", scene:"去重 不重复 唯一值 涉及多少个乡镇", syntax:"SELECT DISTINCT 列名 FROM 表名",
     desc:"去重，只保留不重复的值。「这批项目涉及多少个乡镇」就是靠它数出来的。",
     ex:"SELECT DISTINCT 乡镇 FROM 项目表" },
-  { cat:"basic", name:"别名 AS", syntax:"SELECT 列名 AS 中文名 FROM 表名 简称",
+  { cat:"basic", name:"别名 AS", scene:"别名 起短名 表头友好", syntax:"SELECT 列名 AS 中文名 FROM 表名 简称",
     desc:"给列或表起短名。列别名让报表表头更友好，表别名让长 SQL 更好读。",
     ex:"SELECT p.项目名, p.金额 AS 项目金额 FROM 项目表 p" },
 
   // ===== 条件筛选 =====
-  { cat:"where", name:"AND / OR / NOT", syntax:"WHERE 条件1 AND (条件2 OR 条件3)",
+  { cat:"where", name:"AND / OR / NOT", scene:"多条件 组合判断 并且 或者 优先级", syntax:"WHERE 条件1 AND (条件2 OR 条件3)",
     desc:"多条件组合。<b>坑点：</b>AND 和 OR 混用一定加括号，不加括号优先级会从左算，结果常常不是你想的。",
     ex:"WHERE 乡镇='青山镇' AND (状态='已完工' OR 状态='在建')" },
-  { cat:"where", name:"IN", syntax:"WHERE 列 IN (值1, 值2, ...)",
+  { cat:"where", name:"IN", scene:"多值匹配 在其中 名单 一串或", syntax:"WHERE 列 IN (值1, 值2, ...)",
     desc:"「是这几个值里的任意一个」，比写一串 OR 清爽得多，括号里还能塞一个子查询。",
     ex:"WHERE 乡镇 IN ('青山镇', '白云乡', '石桥镇')" },
-  { cat:"where", name:"BETWEEN", syntax:"WHERE 列 BETWEEN 下限 AND 上限",
+  { cat:"where", name:"BETWEEN", scene:"范围 区间 日期区间 金额区间", syntax:"WHERE 列 BETWEEN 下限 AND 上限",
     desc:"范围筛选，<b>包含两端</b>。日期区间、金额区间最常用。",
     ex:"WHERE 下达日期 BETWEEN DATE '2026-01-01' AND DATE '2026-06-30'" },
-  { cat:"where", name:"LIKE", syntax:"WHERE 列 LIKE '%关键字%'",
+  { cat:"where", name:"LIKE", scene:"模糊查询 包含 关键字 通配符", syntax:"WHERE 列 LIKE '%关键字%'",
     desc:"模糊匹配：% 代表任意多个字符，_ 代表单个字符。注意：% 开头的写法索引会失效，大表上很慢。",
     ex:"WHERE 项目名 LIKE '%饮水%'" },
-  { cat:"where", name:"IS NULL", syntax:"WHERE 列 IS NULL ｜ IS NOT NULL",
+  { cat:"where", name:"IS NULL", scene:"空值 为空 判空 非空", syntax:"WHERE 列 IS NULL ｜ IS NOT NULL",
     desc:"判断空值。<b>铁律：</b>NULL 不能用 = 判断，必须写 IS NULL，写 = NULL 永远查不到东西。",
     ex:"WHERE 负责人 IS NULL" },
 
   // ===== 聚合统计 =====
-  { cat:"agg", name:"COUNT", syntax:"COUNT(*) ｜ COUNT(列) ｜ COUNT(DISTINCT 列)",
+  { cat:"agg", name:"COUNT", scene:"计数 数个数 统计条数 去重计数", syntax:"COUNT(*) ｜ COUNT(列) ｜ COUNT(DISTINCT 列)",
     desc:"数个数。COUNT(*) 数所有行；COUNT(列) 自动跳过空值；加 DISTINCT 去重后再数。",
     ex:"SELECT COUNT(DISTINCT 乡镇) FROM 项目表" },
-  { cat:"agg", name:"SUM / AVG", syntax:"SUM(数值列) ｜ AVG(数值列)",
+  { cat:"agg", name:"SUM / AVG", scene:"求和 平均 合计 汇总", syntax:"SUM(数值列) ｜ AVG(数值列)",
     desc:"求和、求平均。只认数值列，空值自动跳过不参与计算。",
     ex:"SELECT SUM(金额), AVG(金额) FROM 资金表" },
-  { cat:"agg", name:"MAX / MIN", syntax:"MAX(列) ｜ MIN(列)",
+  { cat:"agg", name:"MAX / MIN", scene:"最大 最小 最高一笔 最早日期", syntax:"MAX(列) ｜ MIN(列)",
     desc:"最大、最小值。查「最高一笔资金是多少」「最早的项目日期」用它。",
     ex:"SELECT MAX(金额), MIN(下达日期) FROM 资金表" },
-  { cat:"agg", name:"GROUP BY", syntax:"SELECT 分类列, SUM(金额) FROM 表 GROUP BY 分类列",
+  { cat:"agg", name:"GROUP BY", scene:"分组 统计 数据透视 按乡镇 按月汇总", syntax:"SELECT 分类列, SUM(金额) FROM 表 GROUP BY 分类列",
     desc:"分组汇总，SQL 版的数据透视表。<b>铁律：</b>SELECT 里除了聚合函数，只能出现 GROUP BY 里写过的列。",
     ex:"SELECT 乡镇, SUM(金额) FROM 项目表 GROUP BY 乡镇" },
-  { cat:"agg", name:"HAVING", syntax:"GROUP BY 分类列 HAVING SUM(金额) > 500000",
+  { cat:"agg", name:"HAVING", scene:"分组后筛选 组条件 汇总之后再筛", syntax:"GROUP BY 分类列 HAVING SUM(金额) > 500000",
     desc:"对分组后的结果再筛。<b>区别：</b>WHERE 筛明细行（分组前），HAVING 筛分组结果（分组后），顺序不能反。",
     ex:"SELECT 乡镇, SUM(金额) s FROM 项目表 GROUP BY 乡镇 HAVING SUM(金额) > 500000" },
 
   // ===== 多表连接 =====
-  { cat:"join", name:"INNER JOIN", syntax:"FROM 表A a JOIN 表B b ON a.编码 = b.编码",
+  { cat:"join", name:"INNER JOIN", scene:"连接 关联 两张表拼一起 联表 匹配", syntax:"FROM 表A a JOIN 表B b ON a.编码 = b.编码",
     desc:"两张表按关联字段拼起来，只保留<b>两边都匹配</b>的行。匹配不上的行直接消失。",
     ex:"FROM 项目表 p JOIN 资金表 f ON p.项目编码 = f.项目编码" },
-  { cat:"join", name:"LEFT JOIN", syntax:"FROM 表A a LEFT JOIN 表B b ON a.编码 = b.编码",
+  { cat:"join", name:"LEFT JOIN", scene:"左连接 关联 补空 没有资金的项目", syntax:"FROM 表A a LEFT JOIN 表B b ON a.编码 = b.编码",
     desc:"左表一行不丢，右边配不上就补空。查「哪些项目还没资金下达」就靠 LEFT JOIN + IS NULL 这个经典组合。",
     ex:"FROM 项目表 p LEFT JOIN 资金表 f ON p.项目编码=f.项目编码 WHERE f.项目编码 IS NULL" },
-  { cat:"join", name:"UNION ALL", syntax:"SELECT ... UNION ALL SELECT ...",
+  { cat:"join", name:"UNION ALL", scene:"合并 上下拼接 两个查询结果 不去重", syntax:"SELECT ... UNION ALL SELECT ...",
     desc:"把两个查询结果上下拼成一张。UNION 会自动去重但慢；<b>多数时候你要的是 UNION ALL</b>（不去重、快）。",
     ex:"SELECT 乡镇, 金额 FROM 表1 UNION ALL SELECT 乡镇, 金额 FROM 表2" },
-  { cat:"join", name:"自连接", syntax:"FROM 表 a JOIN 表 b ON a.上级id = b.id",
+  { cat:"join", name:"自连接", scene:"连接自己 同一张表 直属领导 层级", syntax:"FROM 表 a JOIN 表 b ON a.上级id = b.id",
     desc:"同一张表和自己 JOIN，典型场景：员工表查「每个人的直属领导是谁」。给表起两个别名就当两张表用。",
     ex:"SELECT e.姓名, m.姓名 AS 领导 FROM 员工表 e JOIN 员工表 m ON e.领导id = m.id" },
 
   // ===== 子查询 =====
-  { cat:"sub", name:"WHERE 子查询", syntax:"WHERE 列 IN (SELECT 列 FROM 另一张表)",
+  { cat:"sub", name:"WHERE 子查询", scene:"子查询 嵌套 小名单 当条件", syntax:"WHERE 列 IN (SELECT 列 FROM 另一张表)",
     desc:"先查出一张小名单，再拿它当条件筛主表。「查重点乡镇的所有项目」一步到位。",
     ex:"WHERE 乡镇 IN (SELECT 乡镇 FROM 重点乡镇表)" },
-  { cat:"sub", name:"FROM 子查询", syntax:"FROM (SELECT 乡镇, SUM(金额) s FROM 表 GROUP BY 乡镇) t",
+  { cat:"sub", name:"FROM 子查询", scene:"子查询 临时表 先汇总再关联 嵌套", syntax:"FROM (SELECT 乡镇, SUM(金额) s FROM 表 GROUP BY 乡镇) t",
     desc:"把子查询的结果当临时表再加工。复杂报表的常规套路：<b>先汇总，再关联</b>，一层层往上搭。",
     ex:"SELECT t.乡镇, t.s FROM (SELECT 乡镇, SUM(金额) s FROM 项目表 GROUP BY 乡镇) t WHERE t.s > 100000" },
-  { cat:"sub", name:"EXISTS", syntax:"WHERE EXISTS (SELECT 1 FROM 表B WHERE 关联条件)",
+  { cat:"sub", name:"EXISTS", scene:"是否存在 效率 关联判断", syntax:"WHERE EXISTS (SELECT 1 FROM 表B WHERE 关联条件)",
     desc:"判断「是否存在」就停，不关心查出什么。大表上通常比 IN 快，写关联存在性判断优先考虑它。",
     ex:"WHERE EXISTS (SELECT 1 FROM 资金表 f WHERE f.项目编码 = p.项目编码)" },
-  { cat:"sub", name:"CASE WHEN", syntax:"CASE WHEN 条件 THEN 值 ELSE 值 END",
+  { cat:"sub", name:"CASE WHEN", scene:"判断 分档 打标 行列转换 条件取值", syntax:"CASE WHEN 条件 THEN 值 ELSE 值 END",
     desc:"SQL 里的 IF。分组打标、区间分段必备，比如把金额自动分成大/中/小三档，还能配合 SUM 做行列转换。",
     ex:"CASE WHEN 金额 >= 100000 THEN '大额' WHEN 金额 >= 10000 THEN '中额' ELSE '小额' END" },
 
   // ===== 常用函数 =====
-  { cat:"func", name:"字符串拼接 ||", syntax:"Oracle: 列1 || 列2 ｜ MySQL: CONCAT(列1, 列2)",
+  { cat:"func", name:"字符串拼接 ||", scene:"拼接 连接 文本合并 串起来", syntax:"Oracle: 列1 || 列2 ｜ MySQL: CONCAT(列1, 列2)",
     desc:"把几段文本拼成一段。<b>方言差异：</b>Oracle 用 ||，MySQL 用 CONCAT 函数。",
     ex:"SELECT 乡镇 || '-' || 项目名 FROM 项目表" },
-  { cat:"func", name:"SUBSTR", syntax:"SUBSTR(字符串, 起始位, 长度)",
+  { cat:"func", name:"SUBSTR", scene:"截取 拆分 身份证 编码分段 取几位", syntax:"SUBSTR(字符串, 起始位, 长度)",
     desc:"截取字符串。<b>注意：</b>起始位从 1 开始数，不是 0。拆身份证、编码分段必备。",
     ex:"SUBSTR(身份证号, 7, 8)  取出生日期" },
-  { cat:"func", name:"LENGTH / INSTR", syntax:"LENGTH(字符串) ｜ INSTR(字符串, '要找的字')",
+  { cat:"func", name:"LENGTH / INSTR", scene:"长度 位数 脏数据 出现位置 包含", syntax:"LENGTH(字符串) ｜ INSTR(字符串, '要找的字')",
     desc:"LENGTH 数长度（查位数不对的脏数据），INSTR 返回某个字第一次出现的位置。",
     ex:"SELECT * FROM 项目表 WHERE LENGTH(编码) <> 12" },
-  { cat:"func", name:"TRIM / REPLACE", syntax:"TRIM(列) ｜ REPLACE(列, '旧', '新')",
+  { cat:"func", name:"TRIM / REPLACE", scene:"去空格 替换 清洗脏数据", syntax:"TRIM(列) ｜ REPLACE(列, '旧', '新')",
     desc:"TRIM 去首尾空格（匹配不上先查空格），REPLACE 批量替换内容，清洗数据两大主力。",
     ex:"UPDATE 项目表 SET 乡镇 = TRIM(乡镇)" },
-  { cat:"func", name:"NVL", syntax:"Oracle: NVL(列, 空时显示的值) ｜ MySQL: IFNULL(列, 值)",
+  { cat:"func", name:"NVL", scene:"空值 默认值 是空就换成 判空", syntax:"Oracle: NVL(列, 空时显示的值) ｜ MySQL: IFNULL(列, 值)",
     desc:"空值处理神器：是空就换成指定值。<b>方言差异：</b>Oracle 用 NVL，MySQL 用 IFNULL，想通用就写 COALESCE。",
     ex:"NVL(负责人, '未指派')" },
-  { cat:"func", name:"COALESCE", syntax:"COALESCE(值1, 值2, 值3, ...)",
+  { cat:"func", name:"COALESCE", scene:"空值 默认值 第一个非空 跨库通用", syntax:"COALESCE(值1, 值2, 值3, ...)",
     desc:"从左往右返回第一个非空的值，标准 SQL 写法，Oracle 和 MySQL 都认，跨库迁移不用改。",
     ex:"COALESCE(手机号, 座机号, '无联系方式')" },
-  { cat:"func", name:"TO_CHAR", syntax:"TO_CHAR(日期, 'YYYY-MM-DD')",
+  { cat:"func", name:"TO_CHAR", scene:"日期转文本 格式化 按月汇总 年月", syntax:"TO_CHAR(日期, 'YYYY-MM-DD')",
     desc:"Oracle 专用：日期/数字转指定格式文本。按月汇总前先 TO_CHAR 出 'YYYY-MM' 再 GROUP BY。",
     ex:"TO_CHAR(下达日期, 'YYYY-MM')  得到 2026-09" },
-  { cat:"func", name:"TO_DATE", syntax:"TO_DATE('2026-01-01', 'YYYY-MM-DD')",
+  { cat:"func", name:"TO_DATE", scene:"文本转日期 字符串转日期 导入excel", syntax:"TO_DATE('2026-01-01', 'YYYY-MM-DD')",
     desc:"Oracle 专用：文本转日期。导入的 Excel 日期常常是文本，比较大小前必须先转。",
     ex:"WHERE 下达日期 >= TO_DATE('2026-01-01','YYYY-MM-DD')" },
-  { cat:"func", name:"SYSDATE / TRUNC", syntax:"SYSDATE ｜ TRUNC(日期) ｜ TRUNC(日期, 'MM')",
+  { cat:"func", name:"SYSDATE / TRUNC", scene:"当前时间 今天零点 当月一号 日期相减 天数", syntax:"SYSDATE ｜ TRUNC(日期) ｜ TRUNC(日期, 'MM')",
     desc:"SYSDATE 是当前时间；TRUNC 砍掉时分秒只留日期；TRUNC(日期,'MM') 得到当月 1 号。",
     ex:"SYSDATE - 下达日期  已过去多少天" },
-  { cat:"func", name:"ADD_MONTHS", syntax:"ADD_MONTHS(日期, 月数)",
+  { cat:"func", name:"ADD_MONTHS", scene:"日期加月 几个月后 期限日 相差几个月", syntax:"ADD_MONTHS(日期, 月数)",
     desc:"Oracle 专用：日期加 n 个月（负数就是减）。「资金下达 6 个月后的期限日」一键算。",
     ex:"ADD_MONTHS(下达日期, 6)" },
-  { cat:"func", name:"ROUND / MOD", syntax:"ROUND(数值, 位数) ｜ MOD(被除数, 除数)",
+  { cat:"func", name:"ROUND / MOD", scene:"四舍五入 取余 转万元 位数", syntax:"ROUND(数值, 位数) ｜ MOD(被除数, 除数)",
     desc:"ROUND 四舍五入指定位数，MOD 取余数。金额单位换算、分批分组常用。",
     ex:"ROUND(金额 / 10000, 2)  转成万元留两位" },
 
   // ===== 窗口函数 =====
-  { cat:"window", name:"ROW_NUMBER", syntax:"ROW_NUMBER() OVER (PARTITION BY 分组列 ORDER BY 排序列)",
+  { cat:"window", name:"ROW_NUMBER", scene:"序号 编号 top n 每组第一条 去重留一条", syntax:"ROW_NUMBER() OVER (PARTITION BY 分组列 ORDER BY 排序列)",
     desc:"给每组内的行编 1、2、3… 序号。<b>Top N 问题的标准解：</b>套一层 WHERE 序号 = 1，就拿到「每个乡镇金额最高的项目」。",
     ex:"ROW_NUMBER() OVER (PARTITION BY 乡镇 ORDER BY 金额 DESC)" },
-  { cat:"window", name:"RANK / DENSE_RANK", syntax:"RANK() OVER (ORDER BY 金额 DESC)",
+  { cat:"window", name:"RANK / DENSE_RANK", scene:"排名 名次 并列 跳号", syntax:"RANK() OVER (ORDER BY 金额 DESC)",
     desc:"排名，允许并列。RANK 并列后跳号（1,2,2,4），DENSE_RANK 并列后不跳号（1,2,2,3）。",
     ex:"RANK() OVER (ORDER BY 金额 DESC)" },
-  { cat:"window", name:"SUM() OVER", syntax:"SUM(金额) OVER (PARTITION BY 乡镇)",
+  { cat:"window", name:"SUM() OVER", scene:"占比 窗口汇总 组内合计 明细带合计", syntax:"SUM(金额) OVER (PARTITION BY 乡镇)",
     desc:"不分组也能算组内合计：每一行都带上它所在乡镇的总额。<b>算占比神器</b>，明细和汇总同框。",
     ex:"ROUND(金额 / SUM(金额) OVER (PARTITION BY 乡镇) * 100, 1)  占本乡镇百分比" },
-  { cat:"window", name:"LAG / LEAD", syntax:"LAG(列) OVER (ORDER BY 日期)",
+  { cat:"window", name:"LAG / LEAD", scene:"环比 同比 上一行 下一行 增减", syntax:"LAG(列) OVER (ORDER BY 日期)",
     desc:"取上一行 / 下一行的值放到当前行，做环比、同比不用费劲自连接。",
     ex:"金额 - LAG(金额) OVER (ORDER BY 月份)  比上月多多少" },
 
   // ===== 增删改 =====
-  { cat:"dml", name:"INSERT INTO", syntax:"INSERT INTO 表 (列1, 列2) VALUES (值1, 值2)",
+  { cat:"dml", name:"INSERT INTO", scene:"插入 新增 添加数据 录入", syntax:"INSERT INTO 表 (列1, 列2) VALUES (值1, 值2)",
     desc:"插入新行。列名和值要一一对应，文本值用单引号包起来。",
     ex:"INSERT INTO 项目表 (编码, 项目名) VALUES ('XM099', '安全饮水工程')" },
-  { cat:"dml", name:"UPDATE", syntax:"UPDATE 表 SET 列 = 新值 WHERE 条件",
+  { cat:"dml", name:"UPDATE", scene:"修改 更新 改数据 提交 commit", syntax:"UPDATE 表 SET 列 = 新值 WHERE 条件",
     desc:"修改已有数据。<b>事故重灾区：</b>先写 WHERE 再执行，忘了 WHERE 就是全表更新。好习惯是先 SELECT 同条件确认影响行数。",
     ex:"UPDATE 项目表 SET 状态 = '已完工' WHERE 编码 = 'XM099'" },
-  { cat:"dml", name:"DELETE", syntax:"DELETE FROM 表 WHERE 条件",
+  { cat:"dml", name:"DELETE", scene:"删除 清空 回滚 truncate", syntax:"DELETE FROM 表 WHERE 条件",
     desc:"删除行，同样<b>必须带 WHERE</b>。DELETE 可以 ROLLBACK 回滚；TRUNCATE 清空全表不能回滚，新手别碰。",
     ex:"DELETE FROM 测试表 WHERE 编码 = 'XM099'" },
-  { cat:"dml", name:"MERGE INTO", syntax:"MERGE INTO 目标表 USING 来源表 ON (关联) WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...",
+  { cat:"dml", name:"MERGE INTO", scene:"合并 有则更新无则插入 数据同步 批量导数", syntax:"MERGE INTO 目标表 USING 来源表 ON (关联) WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...",
     desc:"Oracle 特色：「有则更新、无则插入」一条语句搞定，做数据同步、批量导数时比手写 UPDATE + INSERT 省事。",
     ex:"MERGE INTO 项目表 t USING 导入表 s ON (t.编码 = s.编码) WHEN MATCHED THEN UPDATE SET t.金额 = s.金额 WHEN NOT MATCHED THEN INSERT VALUES (s.编码, s.金额)" }
 ];
@@ -495,7 +502,8 @@ function match(f) {
   if (activeChip === "fav" && !favs.has(f.name)) return false;
   if (activeChip !== "all" && activeChip !== "fav" && f.cat !== activeChip) return false;
   if (keyword) {
-    const hay = f.name.toLowerCase();
+    // 标题 + 场景词一起匹配，「分组」「空值」这类场景词也能搜到
+    const hay = (f.name + " " + (f.scene || "")).toLowerCase();
     if (!hay.includes(keyword)) return false;
   }
   return true;
@@ -515,6 +523,12 @@ function render() {
     </section>`;
   });
   main.innerHTML = html;
+  // 场景词命中高亮：搜的词落在哪张标签上，一眼看到
+  if (keyword) {
+    main.querySelectorAll(".scene-tags .st").forEach(st => {
+      if (st.textContent.toLowerCase().includes(keyword)) st.classList.add("hl");
+    });
+  }
   emptyEl.style.display = html ? "none" : "block";
   // 搜索时收起新手顺序/全册概览等静态块，让筛选结果顶到第一屏看得见
   document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box")
@@ -550,6 +564,7 @@ function cardHTML(f) {
       <span class="fname">${esc(f.name)}</span>
       <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
     </div>
+    ${f.scene ? `<div class="scene-tags">${f.scene.trim().split(/\s+/).map(w => `<span class="st">${esc(w)}</span>`).join("")}</div>` : ""}
     <div class="syntax">${synHTML}</div>
     <div class="desc">${f.desc}</div>
     <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>

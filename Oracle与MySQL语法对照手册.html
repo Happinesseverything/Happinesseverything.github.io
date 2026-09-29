@@ -296,6 +296,13 @@
   .item-diff { background: var(--orange-bg); color: #7C2D12; border-left: 3px solid #E8965A; }
   .item-fix  { background: var(--green-bg); color: #14532D; border-left: 3px solid #6BBF8E; }
   .item-diff b, .item-fix b { font-weight: 600; }
+  /* 场景词标签：把搜索匹配的依据亮出来，搜到谁不再玄学 */
+  .scene-tags { margin: 8px 0 2px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .scene-tags .st {
+    font-size: 11.5px; line-height: 1.2; padding: 3px 8px; border-radius: 6px;
+    background: #EEF4FA; border: 1px solid rgba(24,95,165,.12); color: #5B6B7C;
+  }
+  .scene-tags .st.hl { background: #FFF3E0; border-color: #E8965A; color: #B45309; font-weight: 600; }
   .item-diff code, .item-fix code, .item-desc code, .sum-card code {
     font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,.75);
     border: 1px solid rgba(0,0,0,.06); border-radius: 4px; padding: 0 4px;
@@ -388,7 +395,7 @@
       </div>
     </div>
 
-    <div class="item" data-cat="type" style="padding:6px;">
+    <div class="item" data-cat="type" data-scene="字段类型 数据类型 类型 选型 整数 小数 金额 数字 字符串 文本 日期 时间 时间戳 布尔 主键 自增 唯一 json uuid 二进制 大文本 number varchar2 char clob date timestamp blob" style="padding:6px;">
       <div class="tbl-wrap">
         <table class="cmp">
           <thead>
@@ -537,7 +544,7 @@
       </div>
     </div>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="空值 null 判空 查不到数据">
       <div class="item-head">
         <h3><span class="pit-no">坑 1</span>= NULL 永远查不出东西 <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -559,7 +566,7 @@ SELECT * FROM emp WHERE comm &lt;&gt; 0 OR comm IS NULL;   -- 想带上 NULL 就
       <p class="item-fix"><b>记住：</b>凡是可能为空的列，条件里都要单独考虑 NULL，尤其用 <code>&lt;&gt;</code>、<code>NOT IN</code> 的时候。<code>NOT IN</code> 里如果有 NULL，整条查询会返回空。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="空值 空字符串 判空">
       <div class="item-head">
         <h3><span class="pit-no">坑 2</span>空字符串 '' 在 Oracle 里就是 NULL <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -584,7 +591,7 @@ INSERT INTO emp (emp_name) VALUES ('-');</pre>
       <p class="item-fix"><b>影响：</b>从 MySQL 迁过来的数据，原本是空串的字段全变成 NULL，<code>WHERE 字段 = ''</code> 一句都查不到。设计表时直接规定：不想为空就加 NOT NULL 约束。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="双引号 标识符无效 报错 字段名">
       <div class="item-head">
         <h3><span class="pit-no">坑 3</span>字符串用了双引号，报「标识符无效」 <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -605,7 +612,7 @@ SELECT 'it\'s ok' FROM DUAL;      -- 错！Oracle 不认反斜杠转义</pre>
       <p class="item-fix"><b>记住：</b>单引号 = 字符串，双引号 = 字段名（而且区分大小写）。MySQL 里双引号通常是字符串，所以从 MySQL 抄过来的 SQL 会在这里报错。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="提交 commit 事务 看不到改动">
       <div class="item-head">
         <h3><span class="pit-no">坑 4</span>改完数据忘了 COMMIT <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -626,7 +633,7 @@ ROLLBACK;    -- 撤销本次所有未提交的改动
       <p class="item-fix"><b>在 PLSQL Developer 里：</b>改完点工具栏的 ✓（或按 <b>F10</b>）才是提交，那个绿色箭头只是执行。养成习惯：写操作执行完立刻 COMMIT。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="更新 删除 全表 where 事故">
       <div class="item-head">
         <h3><span class="pit-no">坑 5</span>UPDATE / DELETE 忘了写 WHERE <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -652,7 +659,7 @@ ROLLBACK;    -- 立刻回滚，还来得及</pre>
         <code>SELECT * FROM emp AS OF TIMESTAMP (SYSTIMESTAMP - INTERVAL '10' MINUTE);</code></p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="提交 事务 建表 改表结构 回滚不了">
       <div class="item-head">
         <h3><span class="pit-no">坑 6</span>DDL 会自动提交，事务兜不住 <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -670,7 +677,7 @@ ROLLBACK;                          -- 已经晚了，回不去
       <p class="item-fix"><b>做法：</b>做完一批数据改动就先 COMMIT，再执行 DDL。别让数据操作夹在结构变更中间。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="清空 删表 回滚 flashback 找回">
       <div class="item-head">
         <h3><span class="pit-no">坑 7</span>TRUNCATE 不能回滚，DROP 反而还能救</h3>
         <button class="star" title="收藏">☆</button>
@@ -688,7 +695,7 @@ DROP TABLE emp PURGE;    -- 加 PURGE 才是彻底删除，不进回收站</pre>
       <p class="item-fix"><b>结论：</b>要清数据先想清楚，TRUNCATE 是没法后悔的。日常清理优先用 DELETE + WHERE（可回滚），确认没问题再 TRUNCATE。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="长度 字节 中文 截断 建表 varchar2">
       <div class="item-head">
         <h3><span class="pit-no">坑 8</span>VARCHAR2 的长度默认按字节算 <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -709,7 +716,7 @@ SELECT * FROM NLS_DATABASE_PARAMETERS WHERE PARAMETER = 'NLS_LENGTH_SEMANTICS';
       <p class="item-fix"><b>建议：</b>建表时一律写 <code>VARCHAR2(n CHAR)</code>，多打 5 个字符，少踩一堆坑。MySQL 的 VARCHAR(n) 天生按字符算，不用管这事。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="日期 时间 等值查询 查不到 截断">
       <div class="item-head">
         <h3><span class="pit-no">坑 9</span>DATE 含时分秒，等值查询会漏数据 <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -731,7 +738,7 @@ SELECT * FROM emp WHERE TRUNC(hire_date) = TO_DATE('2026-09-20', 'YYYY-MM-DD');<
       <p class="item-fix"><b>记住：</b>查某一天的数据，统一用 <code>&gt;= 当天 AND &lt; 次日</code> 的写法，既准又快。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="分页 rownum 前几条 排序 顺序不对">
       <div class="item-head">
         <h3><span class="pit-no">坑 10</span>ROWNUM 是在排序前生成的 <span class="badge pit">高频坑</span></h3>
         <button class="star" title="收藏">☆</button>
@@ -757,7 +764,7 @@ SELECT * FROM (
       <p class="item-fix"><b>一句话：</b>ROWNUM 是"取到第几行"的编号，跟排序没关系。要"排序后再编号"，用 <code>ROW_NUMBER() OVER (ORDER BY ...)</code>。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="别名 as 报错 00933">
       <div class="item-head">
         <h3><span class="pit-no">坑 11</span>表别名不能加 AS</h3>
         <button class="star" title="收藏">☆</button>
@@ -777,7 +784,7 @@ SELECT emp_name AS name, salary annual FROM emp e;</pre>
       <p class="item-fix"><b>技巧：</b>看到 ORA-00933，先检查表别名后面是不是多了个 AS。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="大小写 双引号 字段名">
       <div class="item-head">
         <h3><span class="pit-no">坑 12</span>加了双引号的字段名区分大小写</h3>
         <button class="star" title="收藏">☆</button>
@@ -801,7 +808,7 @@ SELECT column_name FROM user_tab_columns WHERE table_name = 'T';</pre>
       <p class="item-fix"><b>建议：</b>建表建列一律不用双引号，大小写随意写，Oracle 会统一存成大写。只有必须带空格/特殊字符的名字才用引号，那种情况很少见。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="布尔 boolean 类型 建表">
       <div class="item-head">
         <h3><span class="pit-no">坑 13</span>Oracle 没有 BOOLEAN 字段类型</h3>
         <button class="star" title="收藏">☆</button>
@@ -823,7 +830,7 @@ SELECT * FROM t WHERE is_active = 1;</pre>
       <p class="item-fix"><b>说明：</b>BOOLEAN 只在 PL/SQL 代码里有（存储过程、函数内部可以声明布尔变量），SQL 语句和表结构里都没有。MySQL 的 BOOLEAN 其实是 TINYINT(1) 的别名，能用。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="除零 报错 分母 nullif">
       <div class="item-head">
         <h3><span class="pit-no">坑 14</span>除以零直接报错</h3>
         <button class="star" title="收藏">☆</button>
@@ -846,7 +853,7 @@ SELECT NVL(salary / NULLIF(bonus, 0), 0) FROM emp;</pre>
       <p class="item-fix"><b>记住：</b>凡是做除法，分母都用 <code>NULLIF(列, 0)</code> 包一层，这是最省事的写法。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="索引 失效 慢 类型转换 性能">
       <div class="item-head">
         <h3><span class="pit-no">坑 15</span>隐式类型转换让索引失效</h3>
         <button class="star" title="收藏">☆</button>
@@ -873,7 +880,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);</pre>
       <p class="item-fix"><b>原则：</b>WHERE 里让列保持"裸露"——别在列上套函数、别改它的类型。真需要函数查询，就建函数索引。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="分组 group by 报错 ora-00979">
       <div class="item-head">
         <h3><span class="pit-no">坑 16</span>GROUP BY 的列必须写全</h3>
         <button class="star" title="收藏">☆</button>
@@ -901,7 +908,7 @@ SELECT * FROM (
       <p class="item-fix"><b>顺带：</b>MySQL 老配置里这样写能跑出结果，但取到的 emp_name 是随机的，比报错更危险。看到别人这么写，结果可信度要打个问号。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="排序 空值 nulls 顺序">
       <div class="item-head">
         <h3><span class="pit-no">坑 17</span>排序时 NULL 跑到了最前面</h3>
         <button class="star" title="收藏">☆</button>
@@ -922,7 +929,7 @@ SELECT emp_name, NVL(comm, 0) comm FROM emp ORDER BY NVL(comm, 0) DESC;</pre>
       <p class="item-fix"><b>记住：</b>凡是排序的列可能为空，都显式加一句 <code>NULLS LAST</code>，省得被报表结果吓一跳。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="锁 卡住 提交 事务 并发">
       <div class="item-head">
         <h3><span class="pit-no">坑 18</span>没提交的改动会把别人卡住</h3>
         <button class="star" title="收藏">☆</button>
@@ -946,7 +953,7 @@ ALTER SYSTEM KILL SESSION 'sid,serial#' IMMEDIATE;</pre>
       <p class="item-fix"><b>习惯：</b>改完数据立刻 COMMIT 或 ROLLBACK，别把事务开着去干别的事。忘了关的工具窗口，是同事抱怨"数据库卡了"的常见原因。</p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="外连接 加号 join 老写法">
       <div class="item-head">
         <h3><span class="pit-no">坑 19</span>(+) 外连接的两条硬规矩</h3>
         <button class="star" title="收藏">☆</button>
@@ -972,7 +979,7 @@ WHERE a.id = b.aid(+) AND a.id = c.aid(+);</pre>
       <p class="item-fix"><b>建议：</b>新写 SQL 一律用标准 <code>LEFT JOIN</code>；读老代码时看到 <code>(+)</code> 就翻译成"这一侧的表可能没数据"。<b>漏写 (+) 会让外连接悄悄退化成内连接，少数据还不报错。</b></p>
     </article>
 
-    <article class="item" data-cat="pit">
+    <article class="item" data-cat="pit" data-scene="中文 乱码 字符集 编码">
       <div class="item-head">
         <h3><span class="pit-no">坑 20</span>字符集与中文乱码</h3>
         <button class="star" title="收藏">☆</button>
@@ -1030,15 +1037,18 @@ document.addEventListener('DOMContentLoaded', function () {
   var SQL_DIFF = [
     // ===== 查询基础 =====
     { cat: "basic", name: "SELECT",
+      scene: "查询 查数据 取哪几列 查表",
       desc: "查询的起点：从哪张表、取哪几列。SELECT * 是全都要，练习随便用，正式环境尽量写明列名。",
       o: `SELECT 项目名, 金额 FROM 项目表;
 
 SELECT * FROM 项目表;` },
     { cat: "basic", name: "WHERE",
+      scene: "条件 筛选 过滤 按条件查",
       desc: "只保留满足条件的行。绝大多数查询都靠它缩小范围，先筛行，再谈别的。",
       o: `SELECT * FROM 项目表 WHERE 金额 > 100000;
 SELECT * FROM 项目表 WHERE 状态 = '已完工';` },
     { cat: "basic", name: "ORDER BY",
+      scene: "排序 升序 降序 空值位置",
       desc: "排序。默认升序（ASC），加 DESC 变降序，可以写多列：先按第一列排，相同再按第二列。",
       o: `SELECT 项目名, 金额 FROM 项目表
 ORDER BY 金额 DESC, 下达日期 ASC;
@@ -1052,6 +1062,7 @@ ORDER BY 金额 DESC, 下达日期 ASC;
 ORDER BY (金额 IS NULL), 金额 DESC;   -- 手动控制空值位置`,
       diff: "排序写法本身一样，<b>但空值位置规则相反</b>，而且 Oracle 有 NULLS FIRST / LAST 语法，MySQL 没有。" },
     { cat: "basic", name: "取前 N 行",
+      scene: "分页 前几条 前十 top limit rownum",
       desc: "只看前几行。Oracle 12c 起终于有了像样的分页语法，老版本只能用 ROWNUM 套两层。",
       o: `-- 12c 起（推荐）
 SELECT * FROM 项目表 ORDER BY 金额 DESC FETCH FIRST 10 ROWS ONLY;
@@ -1064,11 +1075,13 @@ SELECT * FROM (SELECT * FROM 项目表 ORDER BY 金额 DESC) WHERE ROWNUM <= 10;
 SELECT * FROM 项目表 ORDER BY 金额 DESC LIMIT 10 OFFSET 20;`,
       diff: "Oracle 用 FETCH FIRST（老版本只能 ROWNUM 套一层），MySQL 用 LIMIT。<b>ROWNUM 是排序前生成的</b>，直接配 ORDER BY 会先取 10 行再排序，结果不对。" },
     { cat: "basic", name: "DISTINCT",
+      scene: "去重 不重复 唯一值 涉及多少个乡镇",
       desc: "去重，只保留不重复的值。「这批项目涉及多少个乡镇」就是靠它数出来的。",
       o: `SELECT DISTINCT 乡镇 FROM 项目表;
 
 SELECT COUNT(DISTINCT 乡镇) FROM 项目表;` },
     { cat: "basic", name: "别名 AS",
+      scene: "别名 起短名 表头友好",
       desc: "给列或表起短名。列别名让报表表头更友好，表别名让长 SQL 更好读。",
       o: `SELECT p.项目名, p.金额 AS 项目金额
 FROM 项目表 p              -- 表别名不能写 AS，会报 ORA-00933
@@ -1080,6 +1093,7 @@ WHERE p.乡镇 = '青山镇';`,
 
     // ===== 条件筛选 =====
     { cat: "where", name: "AND / OR / NOT",
+      scene: "多条件 组合判断 并且 或者 优先级",
       desc: "多条件组合。<b>坑点：</b>AND 和 OR 混用一定加括号，不加括号优先级会从左算，结果常常不是你想的。",
       o: `SELECT * FROM 项目表
 WHERE 乡镇 = '青山镇' AND (状态 = '已完工' OR 状态 = '在建');
@@ -1087,6 +1101,7 @@ WHERE 乡镇 = '青山镇' AND (状态 = '已完工' OR 状态 = '在建');
 SELECT * FROM 项目表
 WHERE NOT 状态 = '已完工';` },
     { cat: "where", name: "IN",
+      scene: "多值匹配 在其中 名单 一串或",
       desc: "「是这几个值里的任意一个」，比写一串 OR 清爽得多，括号里还能塞一个子查询。",
       o: `SELECT * FROM 项目表
 WHERE 乡镇 IN ('青山镇', '白云乡', '石桥镇');
@@ -1094,6 +1109,7 @@ WHERE 乡镇 IN ('青山镇', '白云乡', '石桥镇');
 SELECT * FROM 项目表
 WHERE 项目编码 IN (SELECT 项目编码 FROM 重点项目表);` },
     { cat: "where", name: "BETWEEN",
+      scene: "范围 区间 日期区间 金额区间",
       desc: "范围筛选，<b>包含两端</b>。日期区间、金额区间最常用。",
       o: `SELECT * FROM 项目表
 WHERE 下达日期 BETWEEN DATE '2026-01-01' AND DATE '2026-06-30';
@@ -1107,6 +1123,7 @@ WHERE 下达日期 BETWEEN '2026-01-01' AND '2026-06-30';
 WHERE 金额 BETWEEN 10000 AND 500000;`,
       diff: "BETWEEN 本身两边一样，<b>差异在日期写法</b>：Oracle 可以写 <code>DATE '2026-01-01'</code> 这种日期字面量，MySQL 没有这语法，直接拿字符串比。" },
     { cat: "where", name: "LIKE",
+      scene: "模糊查询 包含 关键字 通配符",
       desc: "模糊匹配：% 代表任意多个字符，_ 代表单个字符。注意 % 开头的写法索引会失效，大表上很慢。",
       o: `SELECT * FROM 项目表 WHERE 项目名 LIKE '%饮水%';
 SELECT * FROM 项目表 WHERE 项目名 LIKE '饮水_程';
@@ -1120,6 +1137,7 @@ SELECT * FROM 项目表 WHERE 项目名 LIKE '饮水_程';
 SELECT * FROM 项目表 WHERE 项目名 LIKE '%water%';   -- 能匹配 Water`,
       diff: "通配符用法一样，<b>但 Oracle 默认区分大小写、MySQL 默认不区分</b>，同一条 SQL 两边查出来的条数可能不一样。" },
     { cat: "where", name: "IS NULL",
+      scene: "空值 为空 判空 非空",
       desc: "判断空值。<b>铁律：</b>NULL 不能用 = 判断，必须写 IS NULL，写 = NULL 永远查不到东西。",
       o: `SELECT * FROM 项目表 WHERE 负责人 IS NULL;
 SELECT * FROM 项目表 WHERE 负责人 IS NOT NULL;
@@ -1135,18 +1153,22 @@ SELECT * FROM 项目表 WHERE 负责人 = '';    -- 只匹配空串，不含 NUL
 
     // ===== 聚合统计 =====
     { cat: "agg", name: "COUNT",
+      scene: "计数 数个数 统计条数 去重计数",
       desc: "数个数。COUNT(*) 数所有行；COUNT(列) 自动跳过空值；加 DISTINCT 去重后再数。",
       o: `SELECT COUNT(*) FROM 项目表;
 SELECT COUNT(负责人) FROM 项目表;              -- 跳过负责人为空的行
 SELECT COUNT(DISTINCT 乡镇) FROM 项目表;       -- 涉及多少个乡镇` },
     { cat: "agg", name: "SUM / AVG",
+      scene: "求和 平均 合计 汇总",
       desc: "求和、求平均。只认数值列，空值自动跳过不参与计算。",
       o: `SELECT SUM(金额), AVG(金额) FROM 资金表;
 SELECT ROUND(AVG(金额), 2) FROM 资金表;` },
     { cat: "agg", name: "MAX / MIN",
+      scene: "最大 最小 最高一笔 最早日期",
       desc: "最大、最小值。查「最高一笔资金是多少」「最早的项目日期」用它。",
       o: `SELECT MAX(金额), MIN(下达日期) FROM 资金表;` },
     { cat: "agg", name: "GROUP BY",
+      scene: "分组 统计 数据透视 按乡镇 按月汇总",
       desc: "分组汇总，SQL 版的数据透视表。<b>铁律：</b>SELECT 里除了聚合函数，只能出现 GROUP BY 里写过的列。",
       o: `SELECT 乡镇, COUNT(*) AS 项目数, SUM(金额) AS 合计
 FROM 项目表
@@ -1156,6 +1178,7 @@ FROM 项目表
 GROUP BY 乡镇;`,
       diff: "语法一样，<b>严格程度不同</b>：Oracle 里 SELECT 的非聚合列必须出现在 GROUP BY 中，否则报 ORA-00979；MySQL 老配置能跑，但取到的是随机一行的值，比报错更危险。" },
     { cat: "agg", name: "HAVING",
+      scene: "分组后筛选 组条件 汇总之后再筛",
       desc: "对分组后的结果再筛。<b>区别：</b>WHERE 筛明细行（分组前），HAVING 筛分组结果（分组后），顺序不能反。",
       o: `SELECT 乡镇, SUM(金额) AS 合计
 FROM 项目表
@@ -1165,6 +1188,7 @@ HAVING SUM(金额) > 500000;         -- 分组后：筛组，可以用聚合函�
 
     // ===== 多表连接 =====
     { cat: "join", name: "INNER JOIN",
+      scene: "连接 关联 两张表拼一起 联表 匹配",
       desc: "两张表按关联字段拼起来，只保留<b>两边都匹配</b>的行。匹配不上的行直接消失。",
       o: `SELECT p.项目名, f.金额
 FROM 项目表 p
@@ -1174,6 +1198,7 @@ JOIN 资金表 f ON p.项目编码 = f.项目编码;
 FROM 项目表 p, 资金表 f
 WHERE p.项目编码 = f.项目编码` },
     { cat: "join", name: "LEFT JOIN",
+      scene: "左连接 关联 补空 没有资金的项目",
       desc: "左表一行不丢，右边配不上就补空。查「哪些项目还没资金下达」就靠 LEFT JOIN + IS NULL 这个经典组合。",
       o: `-- 标准写法（推荐，换库也能用）
 SELECT p.项目名, f.金额
@@ -1191,6 +1216,7 @@ LEFT JOIN 资金表 f ON p.项目编码 = f.项目编码;
 -- MySQL 没有 (+) 这种语法，只能写标准 JOIN`,
       diff: "标准 LEFT JOIN 两边通用，<b>新代码一律用它</b>。Oracle 的 <code>(+)</code> 是独有老语法（只能加在一侧、不能和标准 JOIN 混用），<b>而且漏写 (+) 会让外连接悄悄退化成内连接</b>。" },
     { cat: "join", name: "UNION ALL",
+      scene: "合并 上下拼接 两个查询结果 不去重",
       desc: "把两个查询结果上下拼成一张。UNION 会自动去重但慢；<b>多数时候你要的是 UNION ALL</b>（不去重、快）。",
       o: `SELECT 乡镇, 金额 FROM 表1
 UNION ALL
@@ -1206,6 +1232,7 @@ SELECT 乡镇, 金额 FROM 表2;
 SELECT 乡镇 FROM 表1 EXCEPT SELECT 乡镇 FROM 表2;`,
       diff: "UNION / UNION ALL / INTERSECT 两边一致；<b>只有差集关键字不同</b>：Oracle 叫 MINUS，MySQL 叫 EXCEPT（8.0.31 才有）。" },
     { cat: "join", name: "自连接",
+      scene: "连接自己 同一张表 直属领导 层级",
       desc: "同一张表和自己 JOIN，典型场景：员工表查「每个人的直属领导是谁」。给表起两个别名就当两张表用。",
       o: `SELECT e.姓名, m.姓名 AS 领导
 FROM 员工表 e
@@ -1213,15 +1240,18 @@ JOIN 员工表 m ON e.领导id = m.id;` },
 
     // ===== 子查询 =====
     { cat: "sub", name: "WHERE 子查询",
+      scene: "子查询 嵌套 小名单 当条件",
       desc: "先查出一张小名单，再拿它当条件筛主表。「查重点乡镇的所有项目」一步到位。",
       o: `SELECT * FROM 项目表
 WHERE 乡镇 IN (SELECT 乡镇 FROM 重点乡镇表);` },
     { cat: "sub", name: "FROM 子查询",
+      scene: "子查询 临时表 先汇总再关联 嵌套",
       desc: "把子查询的结果当临时表再加工。复杂报表的常规套路：<b>先汇总，再关联</b>，一层层往上搭。",
       o: `SELECT t.乡镇, t.s
 FROM (SELECT 乡镇, SUM(金额) AS s FROM 项目表 GROUP BY 乡镇) t
 WHERE t.s > 100000;` },
     { cat: "sub", name: "EXISTS",
+      scene: "是否存在 效率 关联判断",
       desc: "判断「是否存在」就停，不关心查出什么。大表上通常比 IN 快，写关联存在性判断优先考虑它。",
       o: `SELECT * FROM 项目表 p
 WHERE EXISTS (SELECT 1 FROM 资金表 f WHERE f.项目编码 = p.项目编码);
@@ -1231,6 +1261,7 @@ SELECT * FROM 项目表 p
 WHERE NOT EXISTS (SELECT 1 FROM 资金表 f WHERE f.项目编码 = p.项目编码);`,
       diff: "写法两边一致。<b>但一定要用 NOT EXISTS 替代 NOT IN</b>——子查询结果里只要有一个 NULL，<code>NOT IN</code> 就返回空，还不报错。" },
     { cat: "sub", name: "CASE WHEN",
+      scene: "判断 分档 打标 行列转换 条件取值",
       desc: "SQL 里的 IF。分组打标、区间分段必备，比如把金额自动分成大/中/小三档，还能配合 SUM 做行列转换。",
       o: `SELECT 项目名,
        CASE WHEN 金额 >= 100000 THEN '大额'
@@ -1241,6 +1272,7 @@ FROM 项目表;`,
 
     // ===== 常用函数 =====
     { cat: "func", name: "字符串拼接",
+      scene: "拼接 连接 文本合并 串起来 字符串函数",
       desc: "把几段文本拼成一段。",
       o: `SELECT 乡镇 || '-' || 项目名 AS 全称 FROM 项目表;
 
@@ -1253,12 +1285,14 @@ SELECT CONCAT_WS('-', 乡镇, 项目名) FROM 项目表;
 SELECT 乡镇 || 项目名 FROM 项目表;   -- 不报错，但结果是 0/1`,
       diff: "Oracle 用 <code>||</code>，MySQL 用 <code>CONCAT()</code>。<b>MySQL 里 || 是逻辑或</b>，从 Oracle 抄过去的 SQL 在这儿会静默出错，不报错但结果全错。" },
     { cat: "func", name: "SUBSTR",
+      scene: "截取 拆分 身份证 编码分段 取几位 字符串函数",
       desc: "截取字符串。起始位<b>从 1 开始数</b>，不是 0。拆身份证、编码分段必备。",
       o: `SELECT SUBSTR(身份证号, 7, 8) FROM 项目表;      -- 取出生日期
 SELECT SUBSTR(项目编码, 1, 2) FROM 项目表;      -- 取前两位
 
 -- MySQL 里 SUBSTRING 是同一个函数的别名，两边都认` },
     { cat: "func", name: "LENGTH / INSTR",
+      scene: "长度 位数 脏数据 出现位置 包含 字符串函数",
       desc: "LENGTH 数长度（查位数不对的脏数据），INSTR 返回某个字第一次出现的位置。",
       o: `SELECT LENGTH(项目编码) FROM 项目表;     -- 字符数
 SELECT LENGTHB(项目编码) FROM 项目表;    -- 字节数
@@ -1268,11 +1302,13 @@ SELECT LENGTH(项目编码) FROM 项目表;       -- 字节数！MySQL 的 LENGT
 SELECT INSTR(项目名, '饮水') FROM 项目表;`,
       diff: "<b>同名不同义：</b>Oracle 的 LENGTH 数字符，MySQL 的 LENGTH 数<b>字节</b>。中文场景下差三倍，MySQL 想数字符必须用 CHAR_LENGTH。" },
     { cat: "func", name: "TRIM / REPLACE",
+      scene: "去空格 替换 清洗脏数据 文本函数",
       desc: "TRIM 去首尾空格（匹配不上先查空格），REPLACE 批量替换内容，清洗数据两大主力。",
       o: `UPDATE 项目表 SET 乡镇 = TRIM(乡镇);
 SELECT REPLACE(项目名, '饮水', '供水') FROM 项目表;
 SELECT TRIM(' ' FROM 乡镇) FROM 项目表;    -- 只去空格` },
     { cat: "func", name: "NVL",
+      scene: "空值 默认值 是空就换成 判空 空值函数",
       desc: "空值处理神器：是空就换成指定值。",
       o: `SELECT NVL(负责人, '未指派') FROM 项目表;
 SELECT NVL2(负责人, '已指派', '未指派') FROM 项目表;`,
@@ -1280,9 +1316,11 @@ SELECT NVL2(负责人, '已指派', '未指派') FROM 项目表;`,
 SELECT COALESCE(负责人, 备用联系人, '未指派') FROM 项目表;`,
       diff: "<b>NVL / NVL2 只有 Oracle 有，IFNULL 只有 MySQL 有</b>；好在 COALESCE 两边都能跑，写它最省心。" },
     { cat: "func", name: "COALESCE",
+      scene: "空值 默认值 第一个非空 跨库通用 空值函数",
       desc: "从左往右返回第一个非空的值，标准 SQL 写法，Oracle 和 MySQL 都认，跨库迁移不用改。",
       o: `SELECT COALESCE(手机号, 座机号, '无联系方式') FROM 项目表;` },
     { cat: "func", name: "TO_CHAR",
+      scene: "日期转文本 格式化 按月汇总 年月 日期函数",
       desc: "日期 / 数字转指定格式文本。按月汇总前先转出 'YYYY-MM' 再 GROUP BY。",
       o: `SELECT TO_CHAR(下达日期, 'YYYY-MM') FROM 项目表;        -- 得到 2026-09
 SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') FROM DUAL;
@@ -1292,6 +1330,7 @@ SELECT DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s');
 SELECT FORMAT(1234.5, 2);`,
       diff: "功能对等，<b>但格式符完全是两套</b>：Oracle 的 <code>HH24</code> 对 MySQL 的 <code>%H</code>、<code>MI</code> 对 <code>%i</code>。见到 <code>%Y%m%d</code> 就是 MySQL，见到 <code>YYYYMMDD</code> 就是 Oracle。" },
     { cat: "func", name: "TO_DATE",
+      scene: "文本转日期 字符串转日期 导入excel 日期函数",
       desc: "文本转日期。导入的 Excel 日期常常是文本，比较大小前必须先转。",
       o: `SELECT * FROM 项目表
 WHERE 下达日期 >= TO_DATE('2026-01-01', 'YYYY-MM-DD');`,
@@ -1302,6 +1341,7 @@ WHERE 下达日期 >= STR_TO_DATE('2026-01-01', '%Y-%m-%d');
 WHERE 下达日期 >= '2026-01-01'`,
       diff: "Oracle 用 <code>TO_DATE</code>，MySQL 用 <code>STR_TO_DATE</code>（或者直接写字符串靠隐式转换）。" },
     { cat: "func", name: "SYSDATE / TRUNC",
+      scene: "当前时间 今天零点 当月一号 日期相减 天数 日期函数",
       desc: "SYSDATE 是当前时间；TRUNC 砍掉时分秒只留日期；TRUNC(日期,'MM') 得到当月 1 号。",
       o: `SELECT SYSDATE FROM DUAL;
 SELECT TRUNC(SYSDATE) FROM DUAL;         -- 今天 0 点
@@ -1313,6 +1353,7 @@ SELECT DATE_FORMAT(NOW(), '%Y-%m-01');   -- 当月 1 号
 SELECT DATEDIFF(NOW(), 下达日期) FROM 项目表;`,
       diff: "Oracle 用 SYSDATE（记得带 FROM DUAL），<b>而且日期能直接加减（单位是「天」）</b>；MySQL 用 NOW() / DATE() / DATEDIFF()。" },
     { cat: "func", name: "ADD_MONTHS",
+      scene: "日期加月 几个月后 期限日 相差几个月 日期函数",
       desc: "日期加 n 个月（负数就是减）。「资金下达 6 个月后的期限日」一键算。",
       o: `SELECT ADD_MONTHS(下达日期, 6) FROM 项目表;              -- 6 个月后
 SELECT MONTHS_BETWEEN(SYSDATE, 下达日期) FROM 项目表;    -- 相差几个月
@@ -1322,6 +1363,7 @@ SELECT TIMESTAMPDIFF(MONTH, 下达日期, NOW()) FROM 项目表;
 SELECT NOW() + INTERVAL 7 DAY;`,
       diff: "<b>ADD_MONTHS / MONTHS_BETWEEN 是 Oracle 独有</b>；MySQL 用 DATE_ADD(..., INTERVAL n MONTH) 和 TIMESTAMPDIFF。Oracle 还能直接对日期做加减，MySQL 必须写 INTERVAL。" },
     { cat: "func", name: "ROUND / MOD",
+      scene: "四舍五入 取余 转万元 位数 数字函数",
       desc: "ROUND 四舍五入指定位数，MOD 取余数。金额单位换算、分批分组常用。",
       o: `SELECT ROUND(金额 / 10000, 2) FROM 项目表;   -- 转成万元留两位
 SELECT MOD(金额, 1000) FROM 项目表;
@@ -1333,6 +1375,7 @@ SELECT TRUNCATE(1234.567, 2);                -- MySQL 是 TRUNCATE，不是 TRUN
 
     // ===== 窗口函数 =====
     { cat: "window", name: "ROW_NUMBER",
+      scene: "序号 编号 top n 每组第一条 去重留一条",
       desc: "给每组内的行编 1、2、3… 序号。<b>Top N 问题的标准解：</b>套一层 WHERE 序号 = 1，就拿到「每个乡镇金额最高的项目」。",
       o: `SELECT * FROM (
   SELECT 乡镇, 项目名, 金额,
@@ -1341,18 +1384,21 @@ SELECT TRUNCATE(1234.567, 2);                -- MySQL 是 TRUNCATE，不是 TRUN
 ) WHERE rn = 1;`,
       diff: "写法完全一样（Oracle 和 MySQL 8.0+ 都支持）。<b>但 MySQL 必须 8.0 以上</b>——5.7 完全没有窗口函数，遇到会直接语法报错，只能靠自连接硬凑。" },
     { cat: "window", name: "RANK / DENSE_RANK",
+      scene: "排名 名次 并列 跳号",
       desc: "排名，允许并列。RANK 并列后跳号（1,2,2,4），DENSE_RANK 并列后不跳号（1,2,2,3）。",
       o: `SELECT 项目名, 金额,
        RANK()       OVER (ORDER BY 金额 DESC) AS rk,
        DENSE_RANK() OVER (ORDER BY 金额 DESC) AS drk
 FROM 项目表;` },
     { cat: "window", name: "SUM() OVER",
+      scene: "占比 窗口汇总 组内合计 明细带合计",
       desc: "不分组也能算组内合计：每一行都带上它所在乡镇的总额。<b>算占比神器</b>，明细和汇总同框。",
       o: `SELECT 项目名, 金额,
        SUM(金额) OVER (PARTITION BY 乡镇) AS 乡镇合计,
        ROUND(金额 / SUM(金额) OVER (PARTITION BY 乡镇) * 100, 1) AS 占本乡镇百分比
 FROM 项目表;` },
     { cat: "window", name: "LAG / LEAD",
+      scene: "环比 同比 上一行 下一行 增减",
       desc: "取上一行 / 下一行的值放到当前行，做环比、同比不用费劲自连接。",
       o: `SELECT 月份, 金额,
        LAG(金额)  OVER (ORDER BY 月份) AS 上月金额,
@@ -1362,6 +1408,7 @@ FROM 月度表;` },
 
     // ===== 增删改 =====
     { cat: "dml", name: "INSERT INTO",
+      scene: "插入 新增 添加数据 录入",
       desc: "插入新行。列名和值要一一对应，文本值用单引号包起来。",
       o: `INSERT INTO 项目表 (编码, 项目名, 金额)
 VALUES ('XM099', '安全饮水工程', 120000);
@@ -1379,6 +1426,7 @@ INSERT INTO 项目表 (编码, 项目名)
 VALUES ('XM100', '道路硬化'), ('XM101', '危房改造');`,
       diff: "单行插入一样，<b>批量插入不同</b>：Oracle 用 INSERT ALL，MySQL 在 VALUES 后面用逗号排。" },
     { cat: "dml", name: "UPDATE",
+      scene: "修改 更新 改数据 提交 commit",
       desc: "修改已有数据。<b>事故重灾区：</b>先写 WHERE 再执行，忘了 WHERE 就是全表更新。好习惯是先 SELECT 同条件确认影响行数。",
       o: `-- 先确认范围
 SELECT COUNT(*) FROM 项目表 WHERE 编码 = 'XM099';
@@ -1393,6 +1441,7 @@ UPDATE 项目表 SET 状态 = '已完工' WHERE 编码 = 'XM099';
 -- MySQL 默认自动提交，上面这一句已经生效了`,
       diff: "<b>最要紧的差异：</b>Oracle 默认<b>不自动提交</b>，改完必须 COMMIT（PLSQL Developer 按 F10）；MySQL 默认 autocommit，<b>改错一步就已经生效，来不及后悔</b>。" },
     { cat: "dml", name: "DELETE",
+      scene: "删除 清空 回滚 truncate",
       desc: "删除行，同样<b>必须带 WHERE</b>。DELETE 可以 ROLLBACK 回滚；TRUNCATE 清空全表不能回滚，新手别碰。",
       o: `DELETE FROM 测试表 WHERE 编码 = 'XM099';
 ROLLBACK;      -- 没提交之前随时可以反悔
@@ -1405,6 +1454,7 @@ ROLLBACK;                 -- 或 COMMIT
 TRUNCATE TABLE 测试表;    -- 同样不能回滚`,
       diff: "DELETE 语法一样，<b>但能不能 ROLLBACK 取决于提交机制</b>：Oracle 没提交就能回；MySQL 默认已经提交，想回滚必须提前开事务。" },
     { cat: "dml", name: "MERGE INTO",
+      scene: "合并 有则更新无则插入 数据同步 批量导数",
       desc: "Oracle 特色：「有则更新、无则插入」一条语句搞定，做数据同步、批量导数时比手写 UPDATE + INSERT 省事。",
       o: `MERGE INTO 项目表 t
 USING 导入表 s
@@ -1481,7 +1531,7 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
       if (!list.length) return;
       out += '<h3 class="cat-title">' + g.n + '<span class="hint">' + g.hint + '</span><span class="cat-n">' + list.length + ' 条</span></h3>';
       list.forEach(function (d) {
-        out += '<article class="item" data-cat="' + d.cat + '">';
+        out += '<article class="item" data-cat="' + d.cat + '" data-scene="' + (d.scene || '') + '">';
         out += '<div class="item-head"><h3>' + d.name
              + ' <span class="badge ' + (d.m ? 'diff' : 'same') + '">' + (d.m ? '有差异' : '写法一致') + '</span></h3>'
              + '<button class="star" title="收藏">☆</button></div>';
@@ -1558,9 +1608,28 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
   var FAV_KEY = 'oracle-mysql-handbook-favs';
   var favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
   var items = Array.prototype.slice.call(document.querySelectorAll('.item[data-cat]'));
-  items.forEach(function (el, i) {
-    var id = 'i' + i;
-    el.dataset.id = id;
+  /* 收藏键用条目标题（去掉「坑 N」序号和徽章），以后在中间插入条目，星标也不会错位 */
+  items.forEach(function (el) {
+    var h = el.querySelector('.item-head h3');
+    var t = '';
+    if (h) {
+      var clone = h.cloneNode(true);
+      Array.prototype.forEach.call(clone.querySelectorAll('.pit-no,.badge'), function (x) { x.remove(); });
+      t = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+    el.dataset.id = 't:' + t;
+  });
+  /* 旧版按序号存（i0、i1...），这里一次性迁移成按标题存，已点的星标原样保留、失效键丢弃 */
+  if (Array.from(favs).some(function (k) { return /^i\d+$/.test(k); })) {
+    favs = new Set(Array.from(favs).map(function (k) {
+      if (!/^i\d+$/.test(k)) return k;
+      var el = items[parseInt(k.slice(1), 10)];
+      return el ? el.dataset.id : null;
+    }).filter(Boolean));
+    localStorage.setItem(FAV_KEY, JSON.stringify(Array.from(favs)));
+  }
+  items.forEach(function (el) {
+    var id = el.dataset.id;
     var btn = el.querySelector('.star');
     if (!btn) return;
     if (favs.has(id)) { btn.textContent = '★'; btn.classList.add('faved'); }
@@ -1618,21 +1687,30 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
       if (activeChip === 'all') okCat = true;
       else if (activeChip === 'fav') okCat = favs.has(el.dataset.id);
       else okCat = (el.dataset.cat === activeChip);
-      /* 只搜标题：取 item-head h3 的文字并剔除徽章，不搜正文和代码 */
+      /* 搜标题 + 场景词（data-scene）：类型对照表没有标题节点，全靠场景词参与匹配 */
       var okKw = true;
       if (kw) {
         var h3 = el.querySelector('.item-head h3');
-        var txt = '';
+        var txt = el.dataset.scene || '';
         if (h3) {
           var hc = h3.cloneNode(true);
           Array.prototype.forEach.call(hc.querySelectorAll('.badge'), function (b) { hc.removeChild(b); });
-          txt = hc.textContent.toLowerCase();
+          txt = (hc.textContent || '') + ' ' + txt;
         }
-        okKw = txt.indexOf(kw) >= 0;
+        okKw = txt.toLowerCase().indexOf(kw) >= 0;
       }
       var show = okCat && okKw;
       el.style.display = show ? '' : 'none';
       if (show) shown++;
+    });
+    /* 场景词命中高亮：搜的词落在哪张标签上，一眼看到 */
+    Array.prototype.forEach.call(items, function (el) {
+      var box = el.querySelector('.scene-tags');
+      if (!box) return;
+      Array.prototype.forEach.call(box.querySelectorAll('.st'), function (st) {
+        var hit = !!kw && st.textContent.toLowerCase().indexOf(kw) >= 0;
+        if (hit) st.classList.add('hl'); else st.classList.remove('hl');
+      });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#grid2 .cat-title'), function (t) {
       var nxt = t.nextElementSibling;
@@ -1658,6 +1736,23 @@ ON DUPLICATE KEY UPDATE 金额 = VALUES(金额);`,
       ? '筛出 ' + shown + ' / ' + items.length + ' 条'
       : '共 ' + items.length + ' 条';
   }
+
+  /* ============ 场景词标签：把 data-scene 显示到卡片上，搜索匹配依据看得见 ============ */
+  function sceneTagsHtml(sc) {
+    return sc.trim().split(/\s+/).filter(Boolean).map(function (w) {
+      return '<span class="st">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+    }).join('');
+  }
+  Array.prototype.forEach.call(items, function (el) {
+    var sc = (el.dataset.scene || '').trim();
+    if (!sc || el.querySelector('.scene-tags')) return;
+    var box = document.createElement('div');
+    box.className = 'scene-tags';
+    box.innerHTML = sceneTagsHtml(sc);
+    var head = el.querySelector('.item-head');
+    if (head) head.parentNode.insertBefore(box, head.nextSibling);
+    else el.insertBefore(box, el.firstChild);
+  });
 
   buildChips();
   totalBadge.textContent = '共 ' + items.length + ' 条';
