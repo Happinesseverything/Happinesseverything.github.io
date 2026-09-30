@@ -99,6 +99,28 @@
   }
   .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
   .card.flash { box-shadow: 0 0 0 3px rgba(46,107,255,.45), 0 6px 20px rgba(24,95,165,.15); border-color: var(--blue-accent); }
+  /* 对比卡：易混淆对比表 */
+  .cmp-wrap { overflow-x: auto; margin: 2px 0 4px; -webkit-overflow-scrolling: touch; }
+  .cmp-table { border-collapse: collapse; width: 100%; min-width: 430px; font-size: 13px; }
+  .cmp-table th { background: #EAF2FC; color: var(--blue); font-weight: 600; padding: 7px 10px; border: 1px solid #D5E4F5; text-align: left; white-space: nowrap; }
+  .cmp-table td { padding: 7px 10px; border: 1px solid #E3EEF9; vertical-align: top; line-height: 1.55; }
+  .cmp-table tr:nth-child(even) td { background: #F7FAFE; }
+  .cmp-table .ok { color: #1E8E3E; font-weight: 600; }
+  .cmp-table .no { color: #C2554D; font-weight: 600; }
+  .cmp-tip { margin: 9px 0 2px; font-size: 12.5px; line-height: 1.6; color: #9A5B12; background: #FFF8ED; border: 1px solid #F3D9AE; border-radius: 8px; padding: 7px 11px; }
+  /* 易混淆易错点 */
+  .pit-box {
+    background: linear-gradient(135deg, #FFF8ED 0%, #FFFBF4 100%);
+    border: 1px solid #F0DCB4; border-radius: 16px; padding: 16px 20px;
+    margin-bottom: 26px;
+  }
+  .pit-box h2 { font-size: 15px; font-weight: 600; color: #B45309; margin-bottom: 4px; }
+  .pit-box .pit-sub { font-size: 12px; color: #9A5B12; margin-bottom: 4px; }
+  .pit-cmp-title { font-size: 13.5px; font-weight: 600; color: #C2410C; margin: 12px 0 6px; }
+  .pit-item { font-size: 13px; color: var(--text); line-height: 1.7; padding: 8px 0; }
+  .pit-item + .pit-item { border-top: 1px dashed rgba(180,83,9,.18); }
+  .pit-item b { color: #C2410C; font-weight: 600; }
+  .pit-item code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; background: rgba(24,95,165,.08); color: var(--blue); border-radius: 4px; padding: 1px 5px; }
   /* 场景词标签：把搜索匹配的依据亮出来，搜到谁不再玄学 */
   .scene-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
   .scene-tags .st {
@@ -263,7 +285,24 @@
   </div>
 </main>
 
-<main id="main" style="padding-top:0;"></main>
+<main id="main" style="padding-top:0; padding-bottom:0;"></main>
+
+<main style="padding-top:0; padding-bottom:0;">
+<div class="pit-box">
+  <h2>⚠ 易混淆易错点（全是踩过的坑）</h2>
+  <div class="pit-sub">一张对照表 + 八条必踩坑，做表前先扫一眼</div>
+  <div class="pit-cmp-title">COUNT 家族怎么选</div>
+  <div class="cmp-wrap"><table class="cmp-table"><tr><th>函数</th><th>数什么</th><th>注意</th></tr><tr><td><b>COUNT</b></td><td>只数<b>数字</b>的个数</td><td>文字、空格都不算，最容易踩</td></tr><tr><td><b>COUNTA</b></td><td>数<b>非空</b>的个数</td><td>看着空但有空格的也算</td></tr><tr><td><b>COUNTBLANK</b></td><td>数<b>空白</b>的个数</td><td>反着数，专查漏填</td></tr><tr><td><b>COUNTIF</b></td><td>按<b>一个条件</b>数</td><td>=COUNTIF(区域, 条件)</td></tr><tr><td><b>COUNTIFS</b></td><td>按<b>多个条件</b>数</td><td>条件同时满足才算一条</td></tr></table><p class="cmp-tip">口诀：数数字用 COUNT，数条数用 COUNTA，带条件用 COUNTIF（多条件加 S）。「统计填报了多少项目」用 COUNTA，「缺了几行」用 COUNTBLANK。</p></div>
+  <div class="pit-item"><b>COUNT 只数数字</b>——文字、空格都不算；数条数要用 COUNTA。「明明有数据 COUNT 却是 0」就是数字被存成了文本。</div>
+  <div class="pit-item"><b>文本格式的数字求和为 0</b>——SUM 只认真数字。快速修复：选中区域 → 数据 → 分列 → 完成，一键转回数字。</div>
+  <div class="pit-item"><b>VLOOKUP 第四参数忘写 0</b>——默认近似匹配，结果「看着对其实错」。精确匹配必须写 0 或 FALSE。</div>
+  <div class="pit-item"><b>拖公式时引用乱跑</b>——要锁定的区域加 <code>$</code>（按 F4 切换），比如对照表 <code>$F$2:$G$100</code>。行号列号跟着跑就是没加 $。</div>
+  <div class="pit-item"><b>SUMIFS 和 SUMIF 参数顺序相反</b>——SUMIF 求和区域在<b>最后</b>，SUMIFS 求和区域在<b>最前</b>，顺序反了直接报错。</div>
+  <div class="pit-item"><b>日期存成文本没法算</b>——日期本质是数字，能相减得到天数的才是真日期；文本日期先 DATEVALUE 转。</div>
+  <div class="pit-item"><b>TRIM 清不掉全角空格和换行</b>——系统导出的脏数据常见。用 SUBSTITUTE 换全角空格，TRIM + CLEAN 组合才干净。</div>
+  <div class="pit-item"><b>数据明细表里合并单元格</b>——排序、筛选、透视表全废。合并单元格只许出现在打印报表里，明细表千万别用。</div>
+</div>
+</main>
 
 <div class="empty" id="empty">
   <div class="big">⌕</div>
@@ -575,7 +614,7 @@ function render() {
   }
   emptyEl.style.display = html ? "none" : "block";
   // 搜索时收起全册概览等静态块，让筛选结果顶到第一屏看得见
-  document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box")
+  document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box,.pit-box")
     .forEach(b => b.style.display = keyword ? "none" : "");
   totalBadge.textContent = (keyword || activeChip !== "all")
     ? "筛出 " + shown + " / " + FNS.length + " 个"
@@ -587,7 +626,7 @@ function cardHTML(f) {
   const idx = FNS.indexOf(f);
   // 语法框开头的关键词用亮蓝高亮：从函数名取主干（去掉「 / xx」「系列」「+xx」）
   const base = f.name.split(" /")[0].split(" 系列")[0].split("+")[0];
-  const s = esc(f.syntax);
+  const s = esc(f.syntax || "");
   const ki = base ? s.indexOf(base) : -1;
   const synHTML = ki >= 0
     ? s.slice(0, ki) + '<span class="hl-kw">' + base + '</span>' + s.slice(ki + base.length)
@@ -598,10 +637,10 @@ function cardHTML(f) {
       <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
     </div>
     ${f.scene ? `<div class="scene-tags">${f.scene.trim().split(/\s+/).map(w => `<span class="st">${esc(w)}</span>`).join("")}</div>` : ""}
-    <div class="syntax">${synHTML}</div>
-    <div class="desc">${esc(f.desc)}</div>
-    <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>
-    <button class="copy-btn">复制语法</button>
+    ${f.syntax ? `<div class="syntax">${synHTML}</div>` : ""}
+    ${f.desc ? `<div class="desc">${esc(f.desc)}</div>` : ""}
+    ${f.table ? `<div class="cmp-wrap">${f.table}</div>` : f.ex ? `<div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>` : ""}
+    ${f.table ? "" : `<button class="copy-btn">复制语法</button>`}
   </div>`;
 }
 

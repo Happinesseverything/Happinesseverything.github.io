@@ -94,6 +94,15 @@
   }
   .card:hover { box-shadow: 0 6px 20px rgba(24,95,165,.10); transform: translateY(-1px); }
   .card.flash { box-shadow: 0 0 0 3px rgba(46,107,255,.45), 0 6px 20px rgba(24,95,165,.15); border-color: var(--blue-accent); }
+  /* 对比卡：易混淆对比表 */
+  .cmp-wrap { overflow-x: auto; margin: 2px 0 4px; -webkit-overflow-scrolling: touch; }
+  .cmp-table { border-collapse: collapse; width: 100%; min-width: 430px; font-size: 13px; }
+  .cmp-table th { background: #EAF2FC; color: var(--blue); font-weight: 600; padding: 7px 10px; border: 1px solid #D5E4F5; text-align: left; white-space: nowrap; }
+  .cmp-table td { padding: 7px 10px; border: 1px solid #E3EEF9; vertical-align: top; line-height: 1.55; }
+  .cmp-table tr:nth-child(even) td { background: #F7FAFE; }
+  .cmp-table .ok { color: #1E8E3E; font-weight: 600; }
+  .cmp-table .no { color: #C2554D; font-weight: 600; }
+  .cmp-tip { margin: 9px 0 2px; font-size: 12.5px; line-height: 1.6; color: #9A5B12; background: #FFF8ED; border: 1px solid #F3D9AE; border-radius: 8px; padding: 7px 11px; }
   /* 场景词标签：把搜索匹配的依据亮出来，搜到谁不再玄学 */
   .scene-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
   .scene-tags .st {
@@ -168,6 +177,19 @@
   .order-box h2 { font-size: 15px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
   .order-box p { font-size: 13px; color: var(--text); line-height: 1.8; }
   .order-box b { color: var(--blue-accent); font-weight: 500; }
+  /* 易混淆易错点 */
+  .pit-box {
+    background: linear-gradient(135deg, #FFF8ED 0%, #FFFBF4 100%);
+    border: 1px solid #F0DCB4; border-radius: 16px; padding: 16px 20px;
+    margin-bottom: 26px;
+  }
+  .pit-box h2 { font-size: 15px; font-weight: 600; color: #B45309; margin-bottom: 4px; }
+  .pit-box .pit-sub { font-size: 12px; color: #9A5B12; margin-bottom: 4px; }
+  .pit-cmp-title { font-size: 13.5px; font-weight: 600; color: #C2410C; margin: 12px 0 6px; }
+  .pit-item { font-size: 13px; color: var(--text); line-height: 1.7; padding: 8px 0; }
+  .pit-item + .pit-item { border-top: 1px dashed rgba(180,83,9,.18); }
+  .pit-item b { color: #C2410C; font-weight: 600; }
+  .pit-item code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; background: rgba(24,95,165,.08); color: var(--blue); border-radius: 4px; padding: 1px 5px; }
 
   /* 资源链接区 */
   .res-section { margin-top: 8px; }
@@ -256,7 +278,26 @@
   </div>
 </main>
 
-<main id="main" style="padding-top:0;"></main>
+<main id="main" style="padding-top:0; padding-bottom:0;"></main>
+
+<main style="padding-top:0; padding-bottom:0;">
+<div class="pit-box">
+  <h2>⚠ 易混淆易错点（全是踩过的坑）</h2>
+  <div class="pit-sub">两张对照表 + 八条必踩坑，写完 SQL 对照着扫一眼</div>
+  <div class="pit-cmp-title">WHERE vs HAVING</div>
+  <div class="cmp-wrap"><table class="cmp-table"><tr><th></th><th>WHERE</th><th>HAVING</th></tr><tr><td><b>筛什么</b></td><td>分组<b>前</b>的明细行</td><td>分组<b>后</b>的汇总结果</td></tr><tr><td><b>写在哪</b></td><td>GROUP BY 之前</td><td>GROUP BY 之后</td></tr><tr><td><b>能用聚合函数吗</b></td><td class="no">✗ 不能</td><td class="ok">✓ 只能在这</td></tr><tr><td><b>典型写法</b></td><td>WHERE 金额 &gt; 0</td><td>HAVING SUM(金额) &gt; 500000</td></tr></table><p class="cmp-tip">执行顺序：FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY。在 WHERE 里写 SUM(金额) 会直接报错——先把明细筛干净再分组，又快又不容易错。</p></div>
+  <div class="pit-cmp-title">JOIN 类型怎么选</div>
+  <div class="cmp-wrap"><table class="cmp-table"><tr><th>类型</th><th>图示</th><th>结果</th></tr><tr><td><b>INNER JOIN</b></td><td><svg width="84" height="52" viewBox="0 0 84 52" role="img" aria-label="交集"><defs><clipPath id="jIN"><circle cx="54" cy="26" r="18"/></clipPath></defs><circle cx="30" cy="26" r="18" fill="#378ADD" clip-path="url(#jIN)"/><circle cx="30" cy="26" r="18" fill="none" stroke="#185FA5" stroke-width="1.5"/><circle cx="54" cy="26" r="18" fill="none" stroke="#185FA5" stroke-width="1.5"/></svg></td><td>只留两边都匹配上的行</td></tr><tr><td><b>LEFT JOIN</b></td><td><svg width="84" height="52" viewBox="0 0 84 52" role="img" aria-label="左全"><circle cx="30" cy="26" r="18" fill="#378ADD" stroke="#185FA5" stroke-width="1.5"/><circle cx="54" cy="26" r="18" fill="none" stroke="#185FA5" stroke-width="1.5"/></svg></td><td>左表全保留，右边配不上补空</td></tr><tr><td><b>RIGHT JOIN</b></td><td><svg width="84" height="52" viewBox="0 0 84 52" role="img" aria-label="右全"><circle cx="30" cy="26" r="18" fill="none" stroke="#185FA5" stroke-width="1.5"/><circle cx="54" cy="26" r="18" fill="#378ADD" stroke="#185FA5" stroke-width="1.5"/></svg></td><td>右表全保留，左边配不上补空</td></tr><tr><td><b>FULL OUTER JOIN</b></td><td><svg width="84" height="52" viewBox="0 0 84 52" role="img" aria-label="并集"><circle cx="30" cy="26" r="18" fill="#378ADD" stroke="#185FA5" stroke-width="1.5"/><circle cx="54" cy="26" r="18" fill="#378ADD" stroke="#185FA5" stroke-width="1.5"/></svg></td><td>两边都保留，配不上的互相补空（Oracle 19c 直接支持）</td></tr></table><p class="cmp-tip">经典组合：LEFT JOIN + WHERE 右表.字段 IS NULL = 差集，专查「左表有、右表没有」——比如还没资金下达的项目。少用 RIGHT JOIN，把左表换个位置写 LEFT 更好读。</p></div>
+  <div class="pit-item"><b>UPDATE / DELETE 忘写 WHERE</b>——全表遭殃，没有撤回键。动手前先拿同一个 WHERE 跑 SELECT 确认行数，再把 SELECT 换成 UPDATE。</div>
+  <div class="pit-item"><b>NULL 不能用 <code>=</code> 判断</b>——<code>列 = NULL</code> 结果既不是真也不是假，一行都查不出来。空值判断只有 <code>IS NULL</code> / <code>IS NOT NULL</code>。</div>
+  <div class="pit-item"><b>LEFT JOIN 后在 WHERE 里筛右表字段</b>——自动退回 INNER JOIN 效果，左表照样丢行。右表的筛选条件要写进 <code>ON</code> 里。</div>
+  <div class="pit-item"><b>NOT IN 遇到 NULL 直接「团灭」</b>——子查询结果里只要有一行 NULL，整条语句返回空。查「不在里面」一律改用 <code>NOT EXISTS</code>。</div>
+  <div class="pit-item"><b>COUNT(列) 不数 NULL 行</b>——要全行数用 <code>COUNT(*)</code>。「明明 100 行只数出 87」就是撞上了它。</div>
+  <div class="pit-item"><b>字符列和数字直接比</b>——触发隐式类型转换，索引失效、结果还可能悄悄错。两边类型对齐再比，必要时显式 <code>TO_NUMBER</code>。</div>
+  <div class="pit-item"><b>GROUP BY 后 SELECT 乱放列</b>——SELECT 里只能出现分组列和聚合函数，放别的 Oracle 直接报 ORA-00979。</div>
+  <div class="pit-item"><b>UNION 和 UNION ALL 选错</b>——UNION 自带去重还慢，90% 的场景你要的是 <code>UNION ALL</code>。</div>
+</div>
+</main>
 
 <div class="empty" id="empty">
   <div class="big">⌕</div>
@@ -382,7 +423,6 @@ const FNS = [
   { cat:"agg", name:"HAVING", scene:"分组后筛选 组条件 汇总之后再筛", syntax:"GROUP BY 分类列 HAVING SUM(金额) > 500000",
     desc:"对分组后的结果再筛。<b>区别：</b>WHERE 筛明细行（分组前），HAVING 筛分组结果（分组后），顺序不能反。",
     ex:"SELECT 乡镇, SUM(金额) s FROM 项目表 GROUP BY 乡镇 HAVING SUM(金额) > 500000" },
-
   // ===== 多表连接 =====
   { cat:"join", name:"INNER JOIN", scene:"连接 关联 两张表拼一起 联表 匹配", syntax:"FROM 表A a JOIN 表B b ON a.编码 = b.编码",
     desc:"两张表按关联字段拼起来，只保留<b>两边都匹配</b>的行。匹配不上的行直接消失。",
@@ -531,7 +571,7 @@ function render() {
   }
   emptyEl.style.display = html ? "none" : "block";
   // 搜索时收起新手顺序/全册概览等静态块，让筛选结果顶到第一屏看得见
-  document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box")
+  document.querySelectorAll(".order-box,.tip-box,.intro-box,.overview-box,.pit-box")
     .forEach(b => b.style.display = keyword ? "none" : "");
   totalBadge.textContent = (keyword || activeChip !== "all")
     ? "筛出 " + shown + " / " + FNS.length + " 条"
@@ -549,7 +589,7 @@ function cardHTML(f) {
     base = t || "";
   }
   if (base.includes("(")) base = base.split("(")[0];
-  const s = esc(f.syntax);
+  const s = esc(f.syntax || "");
   let synHTML = s;
   if (base) {
     // 纯字母关键词用词边界匹配，符号（如 ||）用普通查找
@@ -565,10 +605,10 @@ function cardHTML(f) {
       <button class="star${faved?" faved":""}" title="${faved?"取消收藏":"收藏"}">${faved?"★":"☆"}</button>
     </div>
     ${f.scene ? `<div class="scene-tags">${f.scene.trim().split(/\s+/).map(w => `<span class="st">${esc(w)}</span>`).join("")}</div>` : ""}
-    <div class="syntax">${synHTML}</div>
-    <div class="desc">${f.desc}</div>
-    <div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>
-    <button class="copy-btn">复制语法</button>
+    ${f.syntax ? `<div class="syntax">${synHTML}</div>` : ""}
+    ${f.desc ? `<div class="desc">${f.desc}</div>` : ""}
+    ${f.table ? `<div class="cmp-wrap">${f.table}</div>` : f.ex ? `<div class="ex"><span class="lbl">示例</span>${esc(f.ex)}</div>` : ""}
+    ${f.table ? "" : `<button class="copy-btn">复制语法</button>`}
   </div>`;
 }
 
